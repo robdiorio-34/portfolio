@@ -59,7 +59,7 @@ body.dark .navbar {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding-top: 5rem;
+  padding-top: 2rem;
   padding-bottom: 6rem; /* Add space for fixed footer */
 }
 .profile-img-large {
