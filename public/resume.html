@@ -3,20 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rob D'Iorio | Resume</title>
+  <title>Rob Diorio | Resume</title>
   <script src="scripts/dark-mode-init.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="navbar-placeholder"></div>
   <main class="resume-page">
-    <h1>Resume</h1>
-    <p>Resume coming soon...</p>
-    <!-- Optionally add a download link: -->
-    <!-- <a href="assets/RobDiorio_Resume.pdf" download>Download PDF</a> -->
+    <div class="content-container">
+      <div class="resume-html-container">
+        <header class="resume-header">
+          <div class="header-top">
+            <a href="assets/resume.pdf" download class="download-btn-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </a>
+          </div>
+          <h1>Robert Diorio</h1>
+          <div class="resume-contact">
+            <span>robdiorio34@gmail.com</span>
+            <span>|</span>
+            <span>203-247-4261</span>
+            <span>|</span>
+            <span>in/Robert-Diorio</span>
+          </div>
+        </header>
+
+        <section class="resume-section">
+          <h2>EXPERIENCE</h2>
+          
+          <div class="resume-item">
+            <div class="resume-item-header">
+              <div class="job-info">
+                <span class="company">JPMorgan Chase</span>
+                <span class="job-title">Full Stack Software Engineer II</span>
+              </div>
+              <div class="location-date">
+                <span class="location">New York, NY</span>
+                <span class="date">August 2023 - Current</span>
+              </div>
+            </div>
+            <ul>
+              <li>Developed backend for the Chase recommendation engine that drove targeted marketing campaigns, improving customer engagement and <strong>supporting multimillion-dollar revenue</strong> from offer conversions.</li>
+              <li>Led the migration from a monolithic, on-prem architecture to a microservices-based solution on AWS Fargate, improving system scalability and reducing deployment time for critical services by 50%.</li>
+              <li>Owned a mission-critical suppressions engine project, collaborating with product, marketing, engineering, and vendors to meet deployment deadlines and hit KPIs tied to multi-million dollar contracts</li>
+              <li>Built a scalable data aggregation service with multithreading, retry logic, and timeouts to ensure low-latency, high-reliability responses across distributed systems owned by 5+ external teams.</li>
+              <li><strong>Shipped a production-grade Kafka data streaming pipeline</strong> with end-to-end testing and reliability, enabling real-time ingestion and processing of terabytes of data for downstream services.</li>
+              <li>Designed a novel X.509 certificate-based authentication workflow with IDAnywhere to securely integrate AWS and on-prem apps, with documentation viewed 100s of times, enabling cross-team adoption.</li>
+            </ul>
+          </div>
+
+          <div class="resume-item">
+            <div class="resume-item-header">
+              <div class="job-info">
+                <span class="job-title">Software Engineer Intern</span>
+              </div>
+              <div class="location-date">
+                <span class="date">June 2022 - August 2022</span>
+              </div>
+            </div>
+            <ul>
+              <li>Wrote and automated integration and functional tests across dozens of enterprise apps, strengthening CI/CD stability and supporting production with on-call incident handling and resolution.</li>
+              <li>Built and tested Spring Boot RESTful API to handle database migration from Cassandra to Aurora RDS</li>
+              <li>Researched, tested, and documented Aurora RDS POC used by external database migration team</li>
+              <li>Utilized Cucumber BDD and Jest framework to reach 80% code coverage for entire application</li>
+            </ul>
+          </div>
+
+          <div class="resume-item">
+            <div class="resume-item-header">
+              <div class="job-info">
+                <span class="company">Adalo, information technology startup</span>
+                <span class="job-title">Software Engineer Intern</span>
+              </div>
+              <div class="location-date">
+                <span class="location">St. Louis, MO</span>
+                <span class="date">June 2021 - August 2021</span>
+              </div>
+            </div>
+            <ul>
+              <li>Shipped features using React and Node to improve functionality of the platform</li>
+              <li>Executed all stages of the product development lifecycle ranging from planning to testing to deployment</li>
+              <li>Worked with product and design to navigate technical restraints and make effective product decisions</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="resume-section">
+          <h2>SKILLS</h2>
+          <ul class="skills-list">
+            <li><strong>Languages:</strong> Java, Spring, React, JavaScript, Python, Terraform, Mandarin</li>
+            <li><strong>Tech:</strong> AWS (ECS, lambda, S3), Kubernetes (Docker, Skaffold), Pandas, NumPy, TensorFlow, Postman</li>
+            <li><strong>Certs:</strong> AWS - Solutions Architecture, Certified Developer, Cloud Practitioner</li>
+            <li><strong>Leadership:</strong> Co-lead Software Engineer Program's professional and career development committee, presenting to MDs. Mentored intern and first year engineer. Captain and organizer of co-ed soccer team</li>
+          </ul>
+        </section>
+
+        <section class="resume-section">
+          <h2>EDUCATION</h2>
+          <div class="resume-item">
+            <div class="resume-item-header">
+              <div class="job-info">
+                <span class="company">Washington University in St. Louis</span>
+                <span class="job-title">Bachelor of Science, Dual Major in Computer Science and Finance, Minor in Mandarin</span>
+              </div>
+              <div class="location-date">
+                <span class="location">St. Louis, MO</span>
+                <span class="date">2019 - 2023</span>
+              </div>
+            </div>
+            <ul>
+              <li>GPA: 3.8/4.0 - Dean's List All Eligible Semesters</li>
+              <li>Neural Network and Deep Learning Program at DIS Copenhagen
+                <ul>
+                  <li>Used Tensor Flow, Keras to construct GAN that generates images of Pokemon. <a href="#" class="resume-link">project</a>, <a href="#" class="resume-link">code</a></li>
+                  <li>Combined sentence embedding, web scraping, and an NLP library to analyze movie data. <a href="#" class="resume-link">project</a></li>
+                </ul>
+              </li>
+              <li>Club Soccer - Player and leadership all four years</li>
+              <li>TEDx club - Speaker coach for campus hosted TED talks</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
   </main>
   <div id="footer-placeholder"></div>
   <script src="scripts/main.js"></script>
