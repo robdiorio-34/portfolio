@@ -59,11 +59,15 @@ function initializeDarkMode() {
 
 // Load reusable components
 document.addEventListener("DOMContentLoaded", function() {
+  // Determine the correct path for components based on current page location
+  const isInPagesFolder = window.location.pathname.includes('/pages/');
+  const componentsPath = isInPagesFolder ? '../components/' : 'components/';
+  
   // Load navbar first
   const navbarPlaceholder = document.getElementById('navbar-placeholder');
   
   if (navbarPlaceholder) {
-    fetch('components/navbar.html')
+    fetch(componentsPath + 'navbar.html')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -72,6 +76,13 @@ document.addEventListener("DOMContentLoaded", function() {
       })
       .then(data => {
         navbarPlaceholder.innerHTML = data;
+        
+        // Set correct navbar links after navbar is loaded
+        const basePath = isInPagesFolder ? '' : 'pages/';
+        document.getElementById('home-link').href = isInPagesFolder ? '../index.html' : 'pages/index.html';
+        document.getElementById('projects-link').href = basePath + 'projects.html';
+        document.getElementById('resume-link').href = basePath + 'resume.html';
+        document.getElementById('comments-link').href = basePath + 'comments.html';
       })
       .catch(error => {
         console.error('Error loading navbar:', error);
@@ -82,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const footerPlaceholder = document.getElementById('footer-placeholder');
   
   if (footerPlaceholder) {
-    fetch('components/footer.html')
+    fetch(componentsPath + 'footer.html')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -96,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const darkTogglePlaceholder = document.querySelector('.dark-toggle-placeholder');
         
         if (darkTogglePlaceholder) {
-          fetch('components/dark-toggle.html')
+          fetch(componentsPath + 'dark-toggle.html')
             .then(response => {
               if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
