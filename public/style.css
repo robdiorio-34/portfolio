@@ -151,7 +151,8 @@ body.dark .landing-desc {
   transition-delay: 0.05s; /* Synchronized transition */
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  height: 200px; /* Fixed height */
+  justify-content: space-between; /* Distribute space between elements */
 }
 body.dark .project-card {
   background: #23272a;
@@ -161,23 +162,37 @@ body.dark .project-card {
   box-shadow: 0 6px 18px rgba(0,0,0,0.10);
   transform: translateY(-2px) scale(1.02);
 }
-.project-card h4 {
-  margin: 0 0 0.2rem 0;
-  font-size: 1.1rem;
+
+/* Project title - centered at top */
+.project-title {
+  margin: 0;
+  font-size: 1.3rem;
   font-weight: 700;
+  flex-shrink: 0; /* Don't shrink */
+  text-align: center;
 }
-.project-card p {
-  margin: 0 0 0.5rem 0;
+
+/* Project description - centered */
+.project-description {
+  margin: 0.25rem 0;
   color: #555;
-  font-size: 0.98rem;
+  font-size: 1.1rem;
   transition: color 0.3s;
   transition-delay: 0.05s; /* Synchronized transition */
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  align-items: center; /* Center the text vertically */
+  justify-content: center; /* Center the text horizontally */
+  text-align: center;
 }
-body.dark .project-card p {
+
+body.dark .project-description {
   color: #ccc;
   transition-delay: 0.05s; /* Synchronized transition */
 }
-.project-card a {
+
+/* Project link - anchored to bottom */
+.project-link {
   display: inline-flex;
   align-items: center;
   color: #2563eb;
@@ -185,9 +200,56 @@ body.dark .project-card p {
   font-weight: 500;
   transition: color 0.2s;
   gap: 0.4em;
+  flex-shrink: 0; /* Don't shrink */
+  position: relative; /* For absolute positioning of icons */
+  padding-left: 28px; /* Space for the icon */
 }
-.project-card a:hover {
+
+.project-link:hover {
   color: #1e40af;
+}
+
+/* Project card icon positioning and theme switching */
+.project-link .icon {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+  fill: currentColor;
+  transition: filter 0.3s;
+  /* Position both icons in exactly the same spot */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
+}
+
+.project-link .icon-light {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.project-link .icon-dark {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .project-link .icon-light {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .project-link .icon-dark {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
 }
 .icon {
   width: 22px;
