@@ -1,0 +1,133 @@
+/* Responsive Styles - Media queries for mobile and tablet design */
+
+/* Mobile styles (max-width: 600px) */
+@media (max-width: 600px) {
+  .navbar {
+    padding: 1rem 0.7rem 1rem 0.7rem;
+  }
+  
+  .nav-controls {
+    gap: 0.5rem;
+  }
+  
+  .nav-links {
+    gap: 0.8rem;
+  }
+  
+  .nav-link {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .footer-bar {
+    padding: 0.7rem 0;
+  }
+  
+  .footer-controls {
+    margin-right: 1rem;
+  }
+  
+  .footer-bar .footer-icons {
+    margin-left: 1rem;
+    gap: 1rem;
+  }
+  
+  /* Ensure clear button is visible on mobile when comments page is active */
+  body.comments-page-active .footer-bar .clear-queue-btn {
+    display: flex !important;
+  }
+  
+  .profile-img-large {
+    width: 90vw;
+    max-width: 95vw;
+  }
+  
+  .landing h1 {
+    font-size: 2rem;
+  }
+  
+  .landing-desc {
+    font-size: 1rem;
+  }
+}
+
+/* Tablet styles (max-width: 768px) */
+@media (max-width: 768px) {
+  .resume-html-container {
+    margin: 0 1rem;
+    border-radius: 6px;
+  }
+  
+  .resume-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+  }
+  
+  .header-top {
+    top: 0.75rem;
+    left: 0.75rem;
+  }
+  
+  .download-btn-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .resume-header h1 {
+    font-size: 2rem;
+  }
+  
+  .resume-contact {
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+  }
+  
+  .resume-section {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .resume-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .location-date {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* Small mobile styles (max-width: 480px) */
+@media (max-width: 480px) {
+  .resume-html-container {
+    margin: 0 0.5rem;
+  }
+  
+  .resume-header {
+    padding: 1.25rem 1rem 0.75rem 1rem;
+  }
+  
+  .header-top {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+  
+  .download-btn-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .resume-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .resume-contact {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .resume-section {
+    padding: 1rem;
+  }
+} 

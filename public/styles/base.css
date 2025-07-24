@@ -1,0 +1,46 @@
+/* Base Styles - Global styles, body, and transition utilities */
+
+/* Prevent transitions during initial page load */
+html.no-transitions * {
+  transition: none !important;
+}
+
+/* Google Fonts: Inter */
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fafbfc;
+  color: #222;
+  transition: background 0.3s, color 0.3s;
+  transition-delay: 0.05s; /* Small buffer for synchronized transitions */
+}
+
+body.dark {
+  background: #181a1b;
+  color: #f3f3f3;
+  transition-delay: 0.05s; /* Small buffer for synchronized transitions */
+}
+
+/* Global icon styles */
+.icon {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+  fill: currentColor;
+  transition: filter 0.3s;
+}
+
+/* Page layout containers */
+.projects-page,
+.resume-page,
+.comments-page {
+  padding: 2rem 1rem 6rem 1rem; /* Add bottom padding for fixed footer */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-container {
+  padding-top: 2rem; /* Add space from the fixed navbar */
+  margin-top: 1rem; /* Additional spacing */
+} 

@@ -1,0 +1,162 @@
+/* Footer Styles - Footer bar, controls, clear queue button, and icons */
+
+footer {
+  text-align: center;
+  padding: 1.5rem 0 1rem 0;
+  font-size: 0.95rem;
+  color: #888;
+  background: none;
+}
+
+body.dark footer {
+  color: #666;
+}
+
+.footer-bar {
+  width: 100%;
+  background: #f3f6fa;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+  padding: 1.2rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+  transition: background 0.3s, box-shadow 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .footer-bar {
+  background: #23272a;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.footer-controls {
+  display: flex;
+  align-items: center;
+  margin-right: 2rem;
+  gap: 1rem;
+}
+
+.clear-queue-btn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  min-height: 28px;
+  min-width: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Show clear button on comments page */
+.comments-page ~ .footer-bar .clear-queue-btn,
+.comments-page .clear-queue-btn,
+body.comments-page-active .clear-queue-btn {
+  display: flex;
+}
+
+/* Force show clear button when comments page is active */
+body.comments-page-active #clear-queue-btn {
+  display: flex !important;
+}
+
+.clear-queue-btn:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.clear-queue-btn.cleared {
+  background-color: #059669;
+}
+
+.footer-bar .footer-icons {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: 2rem;
+  /* Ensure consistent layout */
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.footer-bar .footer-icons a {
+  display: flex;
+  align-items: center;
+  color: #222;
+  text-decoration: none;
+  transition: color 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+  /* Ensure consistent sizing */
+  min-width: 28px;
+  min-height: 28px;
+  justify-content: center;
+  position: relative; /* For absolute positioning of icons */
+}
+
+.footer-bar .footer-icons a:hover {
+  color: #2563eb;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .footer-bar .footer-icons a {
+  color: #f3f3f3;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .footer-bar .footer-icons a:hover {
+  color: #60a5fa;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.footer-bar .icon {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+  display: block;
+  transition: fill 0.3s, opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+  /* Absolute positioning to prevent layout shifts */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-shrink: 0;
+}
+
+.footer-bar .icon-light {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.footer-bar .icon-dark {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .footer-bar .icon-light {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .footer-bar .icon-dark {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+} 

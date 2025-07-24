@@ -1,0 +1,137 @@
+/* Project Styles - Project cards, grid layout, and project-specific styles */
+
+.projects h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.project-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+@media (min-width: 600px) {
+  .project-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .project-cards {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.project-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.2rem 1rem;
+  transition: box-shadow 0.3s, transform 0.3s, background 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+  display: flex;
+  flex-direction: column;
+  height: 200px; /* Fixed height */
+  justify-content: space-between; /* Distribute space between elements */
+}
+
+body.dark .project-card {
+  background: #23272a;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.project-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Project title - centered at top */
+.project-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  flex-shrink: 0; /* Don't shrink */
+  text-align: center;
+}
+
+/* Project description - centered */
+.project-description {
+  margin: 0.25rem 0;
+  color: #555;
+  font-size: 1.1rem;
+  transition: color 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  align-items: center; /* Center the text vertically */
+  justify-content: center; /* Center the text horizontally */
+  text-align: center;
+}
+
+body.dark .project-description {
+  color: #ccc;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+/* Project link - anchored to bottom */
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  gap: 0.4em;
+  flex-shrink: 0; /* Don't shrink */
+  position: relative; /* For absolute positioning of icons */
+  padding-left: 28px; /* Space for the icon */
+}
+
+.project-link:hover {
+  color: #1e40af;
+}
+
+/* Project card icon positioning and theme switching */
+.project-link .icon {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+  fill: currentColor;
+  transition: filter 0.3s;
+  /* Position both icons in exactly the same spot */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
+}
+
+.project-link .icon-light {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.project-link .icon-dark {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .project-link .icon-light {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .project-link .icon-dark {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+} 

@@ -1,0 +1,335 @@
+/* Resume Styles - HTML resume container, header, sections, and content */
+
+/* HTML Resume Styles */
+.resume-html-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: background 0.3s, box-shadow 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-html-container {
+  background: #2d3748;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transition-delay: 0.05s;
+}
+
+.resume-header {
+  padding: 1rem 2rem 1.5rem 2rem;
+  text-align: center;
+  border-bottom: 2px solid #e5e7eb;
+  transition: border-color 0.3s;
+  transition-delay: 0.05s;
+  position: relative;
+}
+
+body.dark .resume-header {
+  border-bottom-color: #4b5563;
+  transition-delay: 0.05s;
+}
+
+.header-top {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+}
+
+.download-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  color: #3b82f6;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.download-btn-icon:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+body.dark .download-btn-icon {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+body.dark .download-btn-icon:hover {
+  background: #1e3a8a;
+  border-color: #93c5fd;
+  color: #93c5fd;
+}
+
+.download-btn-icon svg {
+  transition: transform 0.2s;
+}
+
+.download-btn-icon:hover svg {
+  transform: translateY(1px);
+}
+
+.resume-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: #000000;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-header h1 {
+  color: #f9fafb;
+  transition-delay: 0.05s;
+}
+
+.resume-contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #000000;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-contact {
+  color: #9ca3af;
+  transition-delay: 0.05s;
+}
+
+.resume-contact span:nth-child(even) {
+  color: #6b7280;
+  font-weight: 300;
+}
+
+body.dark .resume-contact span:nth-child(even) {
+  color: #6b7280;
+}
+
+.resume-section {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f3f4f6;
+  transition: border-color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-section {
+  border-bottom-color: #374151;
+  transition-delay: 0.05s;
+}
+
+.resume-section:last-of-type {
+  border-bottom: none;
+}
+
+.resume-section h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-section h2 {
+  color: #f9fafb;
+  transition-delay: 0.05s;
+}
+
+.resume-item {
+  margin-bottom: 1.5rem;
+}
+
+.resume-item:last-child {
+  margin-bottom: 0;
+}
+
+.resume-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.job-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.location-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: right;
+}
+
+.resume-item h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000000;
+  margin: 0;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-item h3 {
+  color: #f9fafb;
+  transition-delay: 0.05s;
+}
+
+.company {
+  font-weight: 700;
+  color: #000000;
+  font-size: 1rem;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .company {
+  color: #f9fafb;
+  transition-delay: 0.05s;
+}
+
+.job-title {
+  font-weight: 500;
+  color: #374151;
+  font-style: italic;
+  font-size: 0.95rem;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .job-title {
+  color: #9ca3af;
+  transition-delay: 0.05s;
+}
+
+.location {
+  font-weight: 700;
+  color: #000000;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .location {
+  color: #f9fafb;
+  transition-delay: 0.05s;
+}
+
+.date {
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 400;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .date {
+  color: #9ca3af;
+  transition-delay: 0.05s;
+}
+
+.resume-item ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.resume-item li {
+  color: #000000;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-item li {
+  color: #d1d5db;
+  transition-delay: 0.05s;
+}
+
+.resume-item li:last-child {
+  margin-bottom: 0;
+}
+
+.resume-item p {
+  color: #000000;
+  margin: 0;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .resume-item p {
+  color: #d1d5db;
+  transition-delay: 0.05s;
+}
+
+.skills-list {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.skills-list li {
+  color: #000000;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .skills-list li {
+  color: #d1d5db;
+  transition-delay: 0.05s;
+}
+
+.skills-list li:last-child {
+  margin-bottom: 0;
+}
+
+.skills-list strong {
+  color: #000000;
+  font-weight: 700;
+  transition: color 0.3s;
+  transition-delay: 0.05s;
+}
+
+body.dark .skills-list strong {
+  color: #f9fafb;
+  transition-delay: 0.05s;
+}
+
+.resume-link {
+  color: #2563eb;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.resume-link:hover {
+  color: #1e40af;
+}
+
+body.dark .resume-link {
+  color: #60a5fa;
+}
+
+body.dark .resume-link:hover {
+  color: #93c5fd;
+} 
