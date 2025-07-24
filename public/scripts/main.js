@@ -79,7 +79,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Set correct navbar links after navbar is loaded
         const basePath = isInPagesFolder ? '' : 'pages/';
-        document.getElementById('home-link').href = isInPagesFolder ? '../index.html' : 'pages/index.html';
+
+        document.getElementById('home-link').href = '/index.html';
         document.getElementById('projects-link').href = basePath + 'projects.html';
         document.getElementById('resume-link').href = basePath + 'resume.html';
         document.getElementById('comments-link').href = basePath + 'comments.html';
