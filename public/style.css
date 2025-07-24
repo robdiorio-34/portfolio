@@ -291,6 +291,46 @@ body.dark footer {
   display: flex;
   align-items: center;
   margin-right: 2rem;
+  gap: 1rem;
+}
+
+.clear-queue-btn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  min-height: 28px;
+  min-width: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Show clear button on comments page */
+.comments-page ~ .footer-bar .clear-queue-btn,
+.comments-page .clear-queue-btn,
+body.comments-page-active .clear-queue-btn {
+  display: flex;
+}
+
+/* Force show clear button when comments page is active */
+body.comments-page-active #clear-queue-btn {
+  display: flex !important;
+}
+
+.clear-queue-btn:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.clear-queue-btn.cleared {
+  background-color: #059669;
 }
 .footer-bar .footer-icons {
   display: flex;
@@ -366,6 +406,11 @@ body.dark .footer-bar .icon-dark {
   }
   .footer-bar {
     padding: 0.7rem 0;
+  }
+  
+  /* Ensure clear button is visible on mobile when comments page is active */
+  body.comments-page-active .footer-bar .clear-queue-btn {
+    display: flex !important;
   }
 } 
 
@@ -873,4 +918,64 @@ body.dark .resume-link:hover {
   .resume-section {
     padding: 1rem;
   }
+} 
+
+/* Falling Comments Feature */
+#falling-comments {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.falling-comment {
+  position: absolute;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', cursive;
+  font-size: 1.2rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.9;
+  transition: opacity 0.3s;
+  animation: fall linear infinite;
+  pointer-events: none;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  transform: rotate(-2deg);
+}
+
+body.dark .falling-comment {
+  filter: brightness(1.3) saturate(1.2);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.falling-comment:hover {
+  opacity: 1;
+  transform: rotate(0deg) scale(1.2) !important;
+  transition: all 0.3s ease;
+}
+
+@keyframes fall {
+  0% {
+    top: -50px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 120vh;
+    opacity: 0;
+  }
+}
+
+/* Comments page specific styles */
+.comments-page {
+  position: relative;
+  z-index: 1;
 } 

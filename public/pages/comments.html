@@ -12,17 +12,20 @@
 </head>
 <body>
   <div id="navbar-placeholder"></div>
+  
+  <!-- Hidden input for capturing keystrokes -->
+  <input type="text" id="comment-capture" style="position: absolute; left: -9999px; opacity: 0;" />
+  
+  <!-- Falling comments container -->
+  <div id="falling-comments"></div>
+  
   <main class="comments-page">
     <div class="content-container">
       <h1>Comments from Friends</h1>
-      <ul class="comments-list">
-        <li>"Rob is a fantastic collaborator and always brings creative solutions to the table."</li>
-        <li>"A true professional—reliable, skilled, and a pleasure to work with."</li>
-        <li>"Rob's attention to detail and passion for learning are inspiring!"</li>
-      </ul>
     </div>
   </main>
   <div id="footer-placeholder"></div>
   <script src="../scripts/main.js"></script>
+  <script src="../scripts/falling-comments.js"></script>
 </body>
 </html> 
