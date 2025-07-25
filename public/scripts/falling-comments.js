@@ -102,6 +102,12 @@ class FallingComments {
   }
 
   saveComment(comment) {
+    // Validate comment before saving
+    if (!comment || typeof comment !== 'string' || comment.trim().length === 0) {
+      console.warn('Invalid comment, not saving:', comment);
+      return;
+    }
+    
     const storedComments = this.getStoredComments();
     
     // Add new comment with timestamp
@@ -129,7 +135,14 @@ class FallingComments {
   getStoredComments() {
     try {
       const stored = localStorage.getItem(this.storageKey);
-      return stored ? JSON.parse(stored) : [];
+      const comments = stored ? JSON.parse(stored) : [];
+      
+      // Filter out any invalid comment data
+      if (Array.isArray(comments)) {
+        return comments.filter(comment => comment && typeof comment === 'object' && comment.text && typeof comment.text === 'string');
+      }
+      
+      return [];
     } catch (error) {
       console.warn('Could not load comments from localStorage:', error);
       return [];
@@ -259,10 +272,21 @@ class FallingComments {
         if (storedComments.length > 0) {
           // Use stored comments in sequential order
           const commentData = storedComments[this.currentCommentIndex];
-          this.createFallingComment(commentData.text);
           
-          // Move to next comment, cycle back to beginning if at end
-          this.currentCommentIndex = (this.currentCommentIndex + 1) % storedComments.length;
+          // Add safety check for undefined commentData
+          if (commentData && commentData.text) {
+            this.createFallingComment(commentData.text);
+            
+            // Move to next comment, cycle back to beginning if at end
+            this.currentCommentIndex = (this.currentCommentIndex + 1) % storedComments.length;
+          } else {
+            // If commentData is invalid, reset index and try again
+            this.currentCommentIndex = 0;
+            if (storedComments.length > 0 && storedComments[0] && storedComments[0].text) {
+              this.createFallingComment(storedComments[0].text);
+              this.currentCommentIndex = 1;
+            }
+          }
         } else {
           // Fallback to default comments in sequential order
           const defaultComments = [

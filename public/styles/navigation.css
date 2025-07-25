@@ -23,16 +23,16 @@ body.dark .navbar {
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #2563eb;
+  color: #1e40af;
   text-decoration: none;
   letter-spacing: 0.1em;
   transition: color 0.2s;
 }
 
 .logo:hover {
-  color: #1e40af;
+  color: #1e3a8a;
 }
 
 .nav-controls {
@@ -72,10 +72,10 @@ body.dark .dark-toggle:hover {
 }
 
 .nav-link {
-  color: #222;
+  color: #1a1a1a;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 1.1rem;
   padding: 0.5rem 0.8rem;
   border-radius: 6px;
   transition: color 0.3s, background-color 0.3s;
@@ -83,12 +83,12 @@ body.dark .dark-toggle:hover {
 }
 
 .nav-link:hover {
-  color: #2563eb;
+  color: #1e40af;
   background-color: #f0f4fa;
 }
 
 body.dark .nav-link {
-  color: #f3f3f3;
+  color: #ffffff;
   transition-delay: 0.05s; /* Synchronized transition */
 }
 

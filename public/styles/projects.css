@@ -24,6 +24,13 @@
   }
 }
 
+/* Project card link wrapper */
+.project-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .project-card {
   background: #fff;
   border-radius: 10px;
