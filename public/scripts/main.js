@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         document.getElementById('home-link').href = '/index.html';
         document.getElementById('projects-link').href = basePath + 'projects.html';
+        document.getElementById('reading-link').href = basePath + 'reading.html';
         document.getElementById('resume-link').href = basePath + 'resume.html';
         document.getElementById('comments-link').href = basePath + 'comments.html';
       })

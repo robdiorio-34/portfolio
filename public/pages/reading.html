@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rob Diorio | Reading</title>
+  <script src="../scripts/dark-mode-init.js"></script>
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+  <main class="reading-page">
+    <div class="content-container">
+      <h1>Reading</h1>
+      <p class="reading-intro">A collection of books I've read, want to read, and am currently reading. Click on any book to see my notes and rating.</p>
+      
+      <div class="reading-sections">
+        <!-- Currently Reading Section -->
+        <section class="reading-section">
+          <h2>Currently Reading</h2>
+          <div class="books-grid" id="currently-reading-grid">
+            <!-- Books will be populated by JavaScript -->
+          </div>
+        </section>
+
+        <!-- Want to Read Section -->
+        <section class="reading-section">
+          <h2>Want to Read</h2>
+          <div class="books-grid" id="want-to-read-grid">
+            <!-- Books will be populated by JavaScript -->
+          </div>
+        </section>
+
+        <!-- Have Read Section -->
+        <section class="reading-section">
+          <h2>Have Read</h2>
+          <div class="books-grid" id="have-read-grid">
+            <!-- Books will be populated by JavaScript -->
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Book Detail Modal -->
+  <div id="book-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div class="book-detail">
+        <div class="book-cover-container">
+          <img id="modal-book-cover" src="" alt="Book cover" class="book-cover-large">
+          <div class="book-rating" id="modal-book-rating"></div>
+        </div>
+        <div class="book-info">
+          <h3 id="modal-book-title"></h3>
+          <p class="book-author" id="modal-book-author"></p>
+          <p class="book-genre" id="modal-book-genre"></p>
+          <div class="book-notes">
+            <h4>My Notes</h4>
+            <p id="modal-book-notes"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-placeholder"></div>
+  <script src="../scripts/main.js"></script>
+  <script src="../scripts/reading.js"></script>
+</body>
+</html> 

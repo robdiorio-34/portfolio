@@ -3,25 +3,28 @@
 /* Import order is important for CSS specificity and dependencies */
 
 /* 1. Base styles - Global styles, body, and utilities */
-@import url('./base.css');
+@import url('/styles/base.css');
 
 /* 2. Navigation styles - Navbar, nav controls, and links */
-@import url('./navigation.css');
+@import url('/styles/navigation.css');
 
 /* 3. Footer styles - Footer bar, controls, and icons */
-@import url('./footer.css');
+@import url('/styles/footer.css');
 
 /* 4. Landing page styles - Landing layout and profile */
-@import url('./landing.css');
+@import url('/styles/landing.css');
 
 /* 5. Project styles - Project cards and grid layout */
-@import url('./projects.css');
+@import url('/styles/projects.css');
 
 /* 6. Resume styles - Resume container and content */
-@import url('./resume.css');
+@import url('/styles/resume.css');
 
 /* 7. Comments styles - Falling comments and animations */
-@import url('./comments.css');
+@import url('/styles/comments.css');
 
-/* 8. Responsive styles - Media queries (load last for proper override) */
-@import url('./responsive.css'); 
+/* 8. Reading styles - Book cards, grid layout, and modal */
+@import url('/styles/reading.css');
+
+/* 9. Responsive styles - Media queries (load last for proper override) */
+@import url('/styles/responsive.css'); 
