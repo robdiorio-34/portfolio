@@ -24,31 +24,13 @@ const booksData = {
   ],
   wantToRead: [
     {
-      id: 'sapiens',
-      title: 'Sapiens',
-      author: 'Yuval Noah Harari',
-      genre: 'History',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0062316117.01.L.jpg',
+      id: '1q84',
+      title: '1Q84',
+      author: 'Haruki Murakami',
+      genre: 'Fiction',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/0099578077.01.L.jpg',
       rating: null,
-      notes: 'Heard great things about this book. Looking forward to reading about the history of humankind.'
-    },
-    {
-      id: 'thinking-fast-slow',
-      title: 'Thinking, Fast and Slow',
-      author: 'Daniel Kahneman',
-      genre: 'Psychology',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0374533555.01.L.jpg',
-      rating: null,
-      notes: 'Want to understand cognitive biases and decision-making processes better.'
-    },
-    {
-      id: 'zero-to-one',
-      title: 'Zero to One',
-      author: 'Peter Thiel',
-      genre: 'Business',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0804139296.01.L.jpg',
-      rating: null,
-      notes: 'Interested in learning about building successful startups and creating value.'
+      notes: 'Want to read this acclaimed novel by Haruki Murakami. Looking forward to diving into this complex and imaginative story.'
     }
   ],
   haveRead: [
@@ -117,7 +99,7 @@ const booksData = {
       title: 'The Anomaly',
       author: 'Hervé Le Tellier',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1635424444.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/1635421691.01.L.jpg',
       rating: null,
       notes: 'Finished 1/10/24',
       completionDate: '1/10/24'
@@ -127,7 +109,7 @@ const booksData = {
       title: 'Killers of the Flower Moon',
       author: 'David Grann',
       genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385534245.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385534248.01.L.jpg',
       rating: null,
       notes: 'Finished 12/11/23',
       completionDate: '12/11/23'
@@ -147,7 +129,7 @@ const booksData = {
       title: 'God Bless You, Mr. Rosewater',
       author: 'Kurt Vonnegut',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333508.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333471.01.L.jpg',
       rating: null,
       notes: 'Finished 9/27/23',
       completionDate: '9/27/23'
@@ -167,7 +149,7 @@ const booksData = {
       title: 'A Wild Sheep Chase',
       author: 'Haruki Murakami',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0375718947.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/037571894X.01.L.jpg',
       rating: null,
       notes: 'Finished 8/14/23',
       completionDate: '8/14/23'
@@ -177,7 +159,7 @@ const booksData = {
       title: 'The Fountainhead',
       author: 'Ayn Rand',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451191151.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451191153.01.L.jpg',
       rating: null,
       notes: 'Finished 7/20/23',
       completionDate: '7/20/23'
@@ -227,7 +209,7 @@ const booksData = {
       title: 'Player Piano',
       author: 'Kurt Vonnegut',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333508.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333781.01.L.jpg',
       rating: null,
       notes: 'Finished 12/15/22',
       completionDate: '12/15/22'
@@ -237,7 +219,7 @@ const booksData = {
       title: 'Big Panda and Tiny Dragon',
       author: 'James Norbury',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1787399324.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/1647225124.01.L.jpg',
       rating: null,
       notes: 'Finished 10/24/22',
       completionDate: '10/24/22'
@@ -257,7 +239,7 @@ const booksData = {
       title: 'Fail Safe',
       author: 'Eugene Burdick',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0060088885.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/088001654X.01.L.jpg',
       rating: null,
       notes: 'Finished 10/14/22',
       completionDate: '10/14/22'
@@ -296,7 +278,7 @@ const booksData = {
       title: '1984',
       author: 'George Orwell',
       genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451524935.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451524934.01.L.jpg',
       rating: null,
       notes: 'A dystopian classic that remains relevant today.'
     },
@@ -314,7 +296,7 @@ const booksData = {
       title: 'A Walk in the Woods',
       author: 'Bill Bryson',
       genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0767902526.01.L.jpg',
+      cover: 'https://images-na.ssl-images-amazon.com/images/P/178416111X.01.L.jpg',
       rating: null,
       notes: 'A humorous and informative account of hiking the Appalachian Trail.'
     },
