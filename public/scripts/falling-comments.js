@@ -1,4 +1,4 @@
-// Falling Comments Feature
+// Falling Comments Feature with API Integration
 class FallingComments {
   constructor() {
     this.commentBuffer = '';
@@ -28,13 +28,8 @@ class FallingComments {
     // Show clear button only on comments page
     this.setupClearButton();
     
-    // Load saved comments first
+    // Load saved comments from API
     this.loadSavedComments();
-    
-    // Start with some initial comments if no saved ones
-    if (this.getStoredComments().length === 0) {
-      this.addInitialComments();
-    }
     
     // Start the comment spawning loop
     this.startCommentLoop();
@@ -86,342 +81,229 @@ class FallingComments {
       totalDistance,
       animationDuration: `${animationDuration}s`
     });
-    
-    // Update existing comments (optional - they'll continue with their original timing)
-    // This is mainly for debugging and future enhancement
   }
 
-  submitComment() {
+  async submitComment() {
     const comment = this.commentBuffer.trim();
     
     if (comment.length > 0) {
-      this.createFallingComment(comment);
-      this.saveComment(comment);
-      this.commentBuffer = '';
-    }
-  }
-
-  saveComment(comment) {
-    // Validate comment before saving
-    if (!comment || typeof comment !== 'string' || comment.trim().length === 0) {
-      console.warn('Invalid comment, not saving:', comment);
-      return;
-    }
-    
-    const storedComments = this.getStoredComments();
-    
-    // Add new comment with timestamp
-    const commentData = {
-      text: comment,
-      timestamp: Date.now()
-    };
-    
-    // Add to end of queue (FIFO - newest at the end)
-    storedComments.push(commentData);
-    
-    // If queue exceeds max size, remove oldest comment (FIFO - remove from beginning)
-    if (storedComments.length > this.maxStoredComments) {
-      storedComments.shift(); // Remove first (oldest) comment
-    }
-    
-    // Save to localStorage
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(storedComments));
-    } catch (error) {
-      console.warn('Could not save comment to localStorage:', error);
-    }
-  }
-
-  getStoredComments() {
-    try {
-      const stored = localStorage.getItem(this.storageKey);
-      const comments = stored ? JSON.parse(stored) : [];
-      
-      // Filter out any invalid comment data
-      if (Array.isArray(comments)) {
-        return comments.filter(comment => comment && typeof comment === 'object' && comment.text && typeof comment.text === 'string');
+      try {
+        // Save to API
+        await this.saveComment(comment);
+        
+        // Create falling comment immediately
+        this.createFallingComment(comment);
+        
+        this.commentBuffer = '';
+        console.log('Comment submitted successfully:', comment);
+      } catch (error) {
+        console.error('Failed to submit comment:', error);
+        // Still show the comment locally even if API fails
+        this.createFallingComment(comment);
+        this.commentBuffer = '';
       }
-      
-      return [];
-    } catch (error) {
-      console.warn('Could not load comments from localStorage:', error);
-      return [];
     }
   }
 
-  loadSavedComments() {
-    const storedComments = this.getStoredComments();
-    
-    if (storedComments.length > 0) {
-      // Add saved comments with staggered timing
-      storedComments.forEach((commentData, index) => {
-        setTimeout(() => {
-          this.createFallingComment(commentData.text);
-        }, index * 500); // Stagger by 0.5 seconds
+  async saveComment(comment) {
+    try {
+      // Use the API to save the comment
+      await window.portfolioAPI.createComment({
+        text: comment,
+        sentiment_score: null // You can add sentiment analysis later
       });
+    } catch (error) {
+      console.error('Error saving comment to API:', error);
+      throw error;
+    }
+  }
+
+  async getStoredComments() {
+    try {
+      // Get comments from API
+      const comments = await window.portfolioAPI.getComments(100);
+      return comments || [];
+    } catch (error) {
+      console.error('Error loading comments from API:', error);
+      // Fallback to localStorage if API fails
+      const stored = localStorage.getItem(this.storageKey);
+      return stored ? JSON.parse(stored) : [];
+    }
+  }
+
+  async loadSavedComments() {
+    try {
+      const comments = await this.getStoredComments();
+      
+      // Store in memory for quick access
+      this.storedComments = comments.map(c => c.text || c);
+      
+      console.log(`Loaded ${this.storedComments.length} comments from API`);
+    } catch (error) {
+      console.error('Error loading saved comments:', error);
+      this.storedComments = [];
     }
   }
 
   createFallingComment(text) {
-    if (!this.container) {
-      return;
-    }
+    // Create comment element
+    const comment = document.createElement('div');
+    comment.className = 'falling-comment';
+    comment.textContent = text;
     
-    // Limit active comments for performance
-    if (this.fallingComments.length >= this.maxActiveComments) {
-      const oldestComment = this.fallingComments.shift();
-      if (oldestComment && oldestComment.element) {
-        oldestComment.element.remove();
+    // Random position and styling
+    const startX = Math.random() * (window.innerWidth - 200);
+    const startY = -50;
+    
+    comment.style.left = `${startX}px`;
+    comment.style.top = `${startY}px`;
+    
+    // Add to container
+    this.container.appendChild(comment);
+    
+    // Add to active comments array
+    this.fallingComments.push(comment);
+    
+    // Remove old comments if we have too many
+    if (this.fallingComments.length > this.maxActiveComments) {
+      const oldComment = this.fallingComments.shift();
+      if (oldComment && oldComment.parentNode) {
+        oldComment.parentNode.removeChild(oldComment);
       }
     }
-
-    const commentElement = document.createElement('div');
-    commentElement.className = 'falling-comment';
-    commentElement.textContent = text;
     
-    // Random position along x-axis - account for comment length
-    const commentWidth = text.length * 12; // Approximate width based on character count
-    const maxX = window.innerWidth - commentWidth - 50; // 50px buffer from right edge
-    const minX = 50; // 50px buffer from left edge
-    const randomX = Math.random() * (maxX - minX) + minX;
-    commentElement.style.left = `${randomX}px`;
-    
-    // Random size variation for more fun appearance
-    const sizeVariations = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
-    const randomSize = sizeVariations[Math.floor(Math.random() * sizeVariations.length)];
-    commentElement.style.fontSize = `${1.2 * randomSize}rem`;
-    
-    // Random rotation for more dynamic appearance
-    const rotationVariations = [-5, -3, -2, -1, 0, 1, 2, 3, 5];
-    const randomRotation = rotationVariations[Math.floor(Math.random() * rotationVariations.length)];
-    commentElement.style.transform = `rotate(${randomRotation}deg)`;
-    
-    // Random color variation for more vibrant appearance
-    const colorVariations = [
-      '#1e40af', // Dark blue
-      '#2563eb', // Blue
-      '#3b82f6', // Light blue
-      '#1d4ed8', // Royal blue
-      '#1e3a8a', // Navy blue
-      '#7c3aed', // Purple
-      '#059669', // Green
-      '#dc2626'  // Red
-    ];
-    const randomColor = colorVariations[Math.floor(Math.random() * colorVariations.length)];
-    commentElement.style.color = randomColor;
-    
-    // Calculate footer height to determine when comment should disappear
+    // Animate the fall
     const footer = document.querySelector('.footer-bar');
     const footerHeight = footer ? footer.offsetHeight : 0;
-    
-    // Calculate animation duration based on viewport height + footer height
-    // Use a consistent fall speed (pixels per second)
     const fallSpeed = 100; // pixels per second
-    const totalDistance = window.innerHeight + footerHeight + 50; // 50px for initial offset
+    const totalDistance = window.innerHeight + footerHeight + 50;
     const animationDuration = totalDistance / fallSpeed;
     
-    // Set custom animation duration
-    commentElement.style.animationDuration = `${animationDuration}s`;
+    comment.style.transition = `top ${animationDuration}s linear`;
     
-    this.container.appendChild(commentElement);
-    
-    // Store reference for cleanup
-    const commentObj = {
-      element: commentElement,
-      text: text,
-      createdAt: Date.now()
-    };
-    
-    this.fallingComments.push(commentObj);
-    
-    // Remove element after animation completes
+    // Trigger animation
     setTimeout(() => {
-      if (commentElement.parentNode) {
-        commentElement.remove();
+      comment.style.top = `${totalDistance}px`;
+    }, 10);
+    
+    // Remove element after animation
+    setTimeout(() => {
+      if (comment.parentNode) {
+        comment.parentNode.removeChild(comment);
       }
-      // Remove from array
-      const index = this.fallingComments.indexOf(commentObj);
+      // Remove from active comments array
+      const index = this.fallingComments.indexOf(comment);
       if (index > -1) {
         this.fallingComments.splice(index, 1);
       }
-    }, animationDuration * 1000); // Convert to milliseconds
+    }, animationDuration * 1000);
   }
 
   addInitialComments() {
     const initialComments = [
-        "Type something and press enter to drop a comment! 💬",
-        "Cool! 😎",
-        "Nice! 👍",
-        "Awesome! 🤩"
+      'Welcome to my portfolio!',
+      'Thanks for visiting!',
+      'Hope you like it here',
+      'Feel free to explore',
+      'Dark mode is pretty cool',
+      'Check out my projects!'
     ];
-
-    // Add initial comments with delays
-    initialComments.forEach((comment, index) => {
-      setTimeout(() => {
-        this.createFallingComment(comment);
-      }, index * 1000); // Stagger by 1 second
-    });
+    
+    this.storedComments = initialComments;
   }
 
   startCommentLoop() {
-    // Spawn new comments periodically
-    setInterval(() => {
-      if (this.fallingComments.length < this.maxActiveComments) {
-        const storedComments = this.getStoredComments();
+    const spawnComment = () => {
+      if (this.storedComments && this.storedComments.length > 0) {
+        // Cycle through comments
+        const comment = this.storedComments[this.currentCommentIndex];
+        this.createFallingComment(comment);
         
-        if (storedComments.length > 0) {
-          // Use stored comments in sequential order
-          const commentData = storedComments[this.currentCommentIndex];
-          
-          // Add safety check for undefined commentData
-          if (commentData && commentData.text) {
-            this.createFallingComment(commentData.text);
-            
-            // Move to next comment, cycle back to beginning if at end
-            this.currentCommentIndex = (this.currentCommentIndex + 1) % storedComments.length;
-          } else {
-            // If commentData is invalid, reset index and try again
-            this.currentCommentIndex = 0;
-            if (storedComments.length > 0 && storedComments[0] && storedComments[0].text) {
-              this.createFallingComment(storedComments[0].text);
-              this.currentCommentIndex = 1;
-            }
-          }
-        } else {
-          // Fallback to default comments in sequential order
-          const defaultComments = [
-            "Type something and press enter to drop a comment! 💬",
-            "Cool! 😎",
-            "Nice! 👍",
-            "Awesome! 🤩"
-          ];
-          
-          const comment = defaultComments[this.currentCommentIndex % defaultComments.length];
-          this.createFallingComment(comment);
-          
-          // Move to next comment, cycle back to beginning if at end
-          this.currentCommentIndex = (this.currentCommentIndex + 1) % defaultComments.length;
-        }
+        // Move to next comment
+        this.currentCommentIndex = (this.currentCommentIndex + 1) % this.storedComments.length;
       }
-    }, 3000); // Spawn every 3 seconds
+    };
+    
+    // Spawn a comment every 3-8 seconds
+    const spawnInterval = () => {
+      const delay = Math.random() * 5000 + 3000; // 3-8 seconds
+      setTimeout(() => {
+        spawnComment();
+        spawnInterval();
+      }, delay);
+    };
+    
+    // Start the loop
+    spawnInterval();
   }
 
-  // Utility method to clear all stored comments
-  clearStoredComments() {
+  async clearStoredComments() {
     try {
-      localStorage.removeItem(this.storageKey);
-      this.currentCommentIndex = 0; // Reset index when clearing
+      // Note: This would require a bulk delete endpoint or individual deletes
+      // For now, we'll just clear the local cache
+      this.storedComments = [];
+      this.currentCommentIndex = 0;
+      console.log('Comments cleared (local cache only)');
     } catch (error) {
-      console.warn('Could not clear stored comments:', error);
+      console.error('Error clearing comments:', error);
     }
   }
 
-  // Utility method to get queue status
   getQueueStatus() {
-    const storedComments = this.getStoredComments();
-    return storedComments;
+    return {
+      activeComments: this.fallingComments.length,
+      storedComments: this.storedComments ? this.storedComments.length : 0,
+      currentIndex: this.currentCommentIndex
+    };
   }
 
   setupClearButton() {
-    // Wait for footer to be loaded, then set up clear button
-    const setupButton = () => {
-      const clearButton = document.getElementById('clear-queue-btn');
-      
-      // Check if we're on the comments page - more robust path detection
-      const isCommentsPage = window.location.pathname.includes('comments.html') || 
-                           window.location.pathname.includes('/comments') ||
-                           window.location.pathname.endsWith('/') && document.querySelector('.comments-page');
-      
-      if (clearButton && isCommentsPage) {
-        console.log('Clear button found and setting up...');
+    // Only show clear button on comments page
+    if (window.location.pathname.includes('comments.html')) {
+      const setupButton = () => {
+        const clearButton = document.createElement('button');
+        clearButton.textContent = 'Clear All Comments';
+        clearButton.className = 'clear-comments-btn';
+        clearButton.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          z-index: 1000;
+          padding: 10px 15px;
+          background: #ff4757;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+        `;
         
-        // Add class to body for CSS targeting
-        document.body.classList.add('comments-page-active');
-        console.log('Added comments-page-active class to body');
-        
-        // Add click event listener
-        clearButton.addEventListener('click', () => {
-          console.log('Clear button clicked!');
-          
-          // Clear stored comments
-          this.clearStoredComments();
-          
-          // Remove all visible falling comments
-          this.fallingComments.forEach(commentObj => {
-            if (commentObj.element && commentObj.element.parentNode) {
-              commentObj.element.remove();
-            }
-          });
-          
-          // Clear the array
-          this.fallingComments = [];
-          
-          // Reset comment index
-          this.currentCommentIndex = 0;
-          
-          // Visual feedback
-          clearButton.textContent = 'Cleared!';
-          clearButton.classList.add('cleared');
-          setTimeout(() => {
-            clearButton.textContent = 'Clear Queue';
-            clearButton.classList.remove('cleared');
-          }, 2000);
+        clearButton.addEventListener('click', async () => {
+          if (confirm('Are you sure you want to clear all comments?')) {
+            await this.clearStoredComments();
+            clearButton.textContent = 'Comments Cleared!';
+            setTimeout(() => {
+              clearButton.textContent = 'Clear All Comments';
+            }, 2000);
+          }
         });
         
-        console.log('Clear button setup complete');
-        
-        // Check if button is actually visible
-        const computedStyle = window.getComputedStyle(clearButton);
-        console.log('Button display style:', computedStyle.display);
-        console.log('Button visibility:', computedStyle.visibility);
-        
-        return true; // Successfully set up
-      }
+        document.body.appendChild(clearButton);
+      };
       
-      console.log('Clear button not found yet, retrying...');
-      return false; // Button not found yet
-    };
-    
-    // Try to set up immediately
-    if (!setupButton()) {
-      // If button not found, retry after a short delay
-      setTimeout(() => {
-        if (!setupButton()) {
-          // If still not found, retry again after another delay
-          setTimeout(() => {
-            if (!setupButton()) {
-              console.warn('Clear button setup failed after multiple attempts');
-              
-              // Set up mutation observer as a last resort
-              const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                  if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach((node) => {
-                      if (node.nodeType === Node.ELEMENT_NODE) {
-                        if (node.id === 'clear-queue-btn' || node.querySelector('#clear-queue-btn')) {
-                          console.log('Clear button found via mutation observer');
-                          setupButton();
-                          observer.disconnect();
-                        }
-                      }
-                    });
-                  }
-                });
-              });
-              
-              observer.observe(document.body, {
-                childList: true,
-                subtree: true
-              });
-            }
-          }, 500);
-        }
-      }, 100);
+      // Wait for page to load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupButton);
+      } else {
+        setupButton();
+      }
     }
   }
 }
 
-// Initialize falling comments when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  new FallingComments();
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('falling-comments')) {
+    new FallingComments();
+  }
 }); 
