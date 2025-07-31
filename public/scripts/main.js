@@ -59,15 +59,11 @@ function initializeDarkMode() {
 
 // Load reusable components
 document.addEventListener("DOMContentLoaded", function() {
-  // Determine the correct path for components based on current page location
-  const isInPagesFolder = window.location.pathname.includes('/pages/');
-  const componentsPath = isInPagesFolder ? '../components/' : 'components/';
-  
   // Load navbar first
   const navbarPlaceholder = document.getElementById('navbar-placeholder');
   
   if (navbarPlaceholder) {
-    fetch(componentsPath + 'navbar.html')
+    fetch('/components/navbar.html')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -78,13 +74,11 @@ document.addEventListener("DOMContentLoaded", function() {
         navbarPlaceholder.innerHTML = data;
         
         // Set correct navbar links after navbar is loaded
-        const basePath = isInPagesFolder ? '' : 'pages/';
-
-        document.getElementById('home-link').href = '/index.html';
-        document.getElementById('projects-link').href = basePath + 'projects.html';
-        document.getElementById('reading-link').href = basePath + 'reading.html';
-        document.getElementById('resume-link').href = basePath + 'resume.html';
-        document.getElementById('comments-link').href = basePath + 'comments.html';
+        document.getElementById('home-link').href = '/';
+        document.getElementById('projects-link').href = '/projects.html';
+        document.getElementById('reading-link').href = '/reading.html';
+        document.getElementById('resume-link').href = '/resume.html';
+        document.getElementById('comments-link').href = '/comments.html';
       })
       .catch(error => {
         console.error('Error loading navbar:', error);
@@ -95,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const footerPlaceholder = document.getElementById('footer-placeholder');
   
   if (footerPlaceholder) {
-    fetch(componentsPath + 'footer.html')
+    fetch('/components/footer.html')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -105,30 +99,9 @@ document.addEventListener("DOMContentLoaded", function() {
       .then(data => {
         footerPlaceholder.innerHTML = data;
         
-        // Load dark toggle component
-        const darkTogglePlaceholder = document.querySelector('.dark-toggle-placeholder');
-        
-        if (darkTogglePlaceholder) {
-          fetch(componentsPath + 'dark-toggle.html')
-            .then(response => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.text();
-            })
-            .then(data => {
-              darkTogglePlaceholder.innerHTML = data;
-              darkToggleBtn = document.getElementById('dark-toggle');
-              initializeDarkMode();
-            })
-            .catch(error => {
-              console.error('Error loading dark toggle:', error);
-              // Fallback: create dark toggle button directly
-              darkTogglePlaceholder.innerHTML = '<button id="dark-toggle" class="dark-toggle" aria-label="Toggle dark mode">🌙</button>';
-              darkToggleBtn = document.getElementById('dark-toggle');
-              initializeDarkMode();
-            });
-        }
+        // Initialize dark mode after footer is loaded
+        darkToggleBtn = document.getElementById('dark-toggle');
+        initializeDarkMode();
       })
       .catch(error => {
         console.error('Error loading footer:', error);

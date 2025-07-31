@@ -111,7 +111,7 @@ const strictLimiter = rateLimit({
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 50, // allow 50 requests per 15 minutes, then...
-  delayMs: 500 // begin adding 500ms of delay per request above 50
+  delayMs: () => 500 // begin adding 500ms of delay per request above 50
 });
 
 // Middleware
@@ -339,6 +339,23 @@ app.get('/api/health', (req, res) => {
     blockedIPs: blockedIPs.size,
     suspiciousIPs: suspiciousIPs.size
   });
+});
+
+// Serve specific HTML pages
+app.get('/reading.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'reading.html'));
+});
+
+app.get('/comments.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'comments.html'));
+});
+
+app.get('/resume.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'resume.html'));
+});
+
+app.get('/projects.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'projects.html'));
 });
 
 // Catch-all route for static files and SPA routing
