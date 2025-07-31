@@ -155,8 +155,47 @@ app.use('/assets', express.static('public/assets', {
 
 app.use('/components', express.static('public/components'));
 
-// Serve static files from public directory (bypass DDoS protection for static assets)
-app.use(express.static('public'));
+// Serve static files from public directory with comprehensive MIME type handling
+app.use(express.static('public', {
+  setHeaders: (res, path) => {
+    // JavaScript files
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+    // CSS files
+    else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    // Image files
+    else if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (path.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (path.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+    // Document files
+    else if (path.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+    } else if (path.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+    // Font files
+    else if (path.endsWith('.woff')) {
+      res.setHeader('Content-Type', 'font/woff');
+    } else if (path.endsWith('.woff2')) {
+      res.setHeader('Content-Type', 'font/woff2');
+    } else if (path.endsWith('.ttf')) {
+      res.setHeader('Content-Type', 'font/ttf');
+    } else if (path.endsWith('.eot')) {
+      res.setHeader('Content-Type', 'application/vnd.ms-fontobject');
+    }
+  }
+}));
 
 // Apply DDoS protection only to API routes and dynamic content
 app.use('/api', ipBlocker);
@@ -400,22 +439,6 @@ app.get('/projects.html', (req, res) => {
 app.get('/favicon.ico', (req, res) => {
   // Return a 204 No Content to prevent 403 errors
   res.status(204).end();
-});
-
-// Explicit routes for critical files with proper MIME types
-app.get('/scripts/dark-mode-init.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'public/scripts/dark-mode-init.js'));
-});
-
-app.get('/scripts/main.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'public/scripts/main.js'));
-});
-
-app.get('/styles/main.css', (req, res) => {
-  res.setHeader('Content-Type', 'text/css');
-  res.sendFile(path.join(__dirname, 'public/styles/main.css'));
 });
 
 // Catch-all route for static files and SPA routing
