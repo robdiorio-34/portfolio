@@ -142,12 +142,13 @@ app.use('/styles', express.static('public/styles', {
 app.use('/assets', express.static('public/assets'));
 app.use('/components', express.static('public/components'));
 
-// Serve static files from public directory
+// Serve static files from public directory (bypass DDoS protection for static assets)
 app.use(express.static('public'));
 
-app.use(ipBlocker);
-app.use(limiter);
-app.use(speedLimiter);
+// Apply DDoS protection only to API routes and dynamic content
+app.use('/api', ipBlocker);
+app.use('/api', limiter);
+app.use('/api', speedLimiter);
 
 // Request validation middleware
 const validateRequest = (req, res, next) => {
@@ -380,6 +381,12 @@ app.get('/resume.html', (req, res) => {
 
 app.get('/projects.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'projects.html'));
+});
+
+// Handle favicon requests
+app.get('/favicon.ico', (req, res) => {
+  // Return a 204 No Content to prevent 403 errors
+  res.status(204).end();
 });
 
 // Catch-all route for static files and SPA routing
