@@ -77,9 +77,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
     },
   },
   hsts: {
@@ -120,7 +121,30 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Limit request body size
+
+// Configure proper MIME types for static files
+app.use('/scripts', express.static('public/scripts', {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
+
+app.use('/styles', express.static('public/styles', {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
+}));
+
+app.use('/assets', express.static('public/assets'));
+app.use('/components', express.static('public/components'));
+
+// Serve static files from public directory
 app.use(express.static('public'));
+
 app.use(ipBlocker);
 app.use(limiter);
 app.use(speedLimiter);
