@@ -26,10 +26,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // API Routes
-// Catch-all route for static files and SPA routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+
 
 // Books API
 app.get('/api/books', async (req, res) => {
@@ -174,6 +171,11 @@ app.post('/api/projects', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Catch-all route for static files and SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
 
 // Start server
 app.listen(PORT, () => {
