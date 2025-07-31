@@ -4,6 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import slowDown from 'express-slow-down';
 
 // Load environment variables
 dotenv.config();
@@ -20,13 +23,147 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
+// DDoS Protection - IP tracking for blocking
+const suspiciousIPs = new Map();
+const blockedIPs = new Set();
+const requestCounts = new Map();
+
+// Clean up old entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of suspiciousIPs.entries()) {
+    if (now - data.lastSeen > 300000) { // 5 minutes
+      suspiciousIPs.delete(ip);
+    }
+  }
+  for (const [ip, timestamp] of requestCounts.entries()) {
+    if (now - timestamp > 60000) { // 1 minute
+      requestCounts.delete(ip);
+    }
+  }
+}, 300000);
+
+// IP blocking middleware
+const ipBlocker = (req, res, next) => {
+  const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
+  
+  if (blockedIPs.has(clientIP)) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  
+  // Track suspicious behavior
+  const now = Date.now();
+  const requestCount = requestCounts.get(clientIP) || 0;
+  
+  if (requestCount > 100) { // More than 100 requests per minute
+    suspiciousIPs.set(clientIP, {
+      count: (suspiciousIPs.get(clientIP)?.count || 0) + 1,
+      lastSeen: now
+    });
+    
+    if (suspiciousIPs.get(clientIP).count > 5) {
+      blockedIPs.add(clientIP);
+      console.log(`🚫 IP ${clientIP} blocked for suspicious activity`);
+      return res.status(403).json({ error: 'Access denied' });
+    }
+  }
+  
+  requestCounts.set(clientIP, now);
+  next();
+};
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path.startsWith('/api/books') && req.method === 'GET', // Allow more requests for reading books
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // limit each IP to 10 requests per minute for sensitive operations
+  message: { error: 'Too many requests, please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Speed limiting for API endpoints
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  delayAfter: 50, // allow 50 requests per 15 minutes, then...
+  delayMs: 500 // begin adding 500ms of delay per request above 50
+});
+
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:3001'],
+  credentials: true
+}));
+app.use(express.json({ limit: '10mb' })); // Limit request body size
 app.use(express.static('public'));
+app.use(ipBlocker);
+app.use(limiter);
+app.use(speedLimiter);
+
+// Request validation middleware
+const validateRequest = (req, res, next) => {
+  // Check content length
+  if (req.headers['content-length'] && parseInt(req.headers['content-length']) > 10 * 1024 * 1024) {
+    return res.status(413).json({ error: 'Request too large' });
+  }
+  
+  // Validate JSON for POST requests
+  if (req.method === 'POST' && req.headers['content-type'] !== 'application/json') {
+    return res.status(400).json({ error: 'Content-Type must be application/json' });
+  }
+  
+  next();
+};
+
+// API monitoring
+const apiMonitor = (req, res, next) => {
+  const start = Date.now();
+  const originalSend = res.send;
+  
+  res.send = function(data) {
+    const duration = Date.now() - start;
+    console.log(`📊 ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
+    
+    // Log slow requests
+    if (duration > 1000) {
+      console.warn(`⚠️  Slow request: ${req.method} ${req.path} took ${duration}ms`);
+    }
+    
+    originalSend.call(this, data);
+  };
+  
+  next();
+};
+
+app.use('/api', apiMonitor);
+app.use('/api', validateRequest);
 
 // API Routes
-
 
 // Books API
 app.get('/api/books', async (req, res) => {
@@ -48,12 +185,17 @@ app.get('/api/books', async (req, res) => {
   }
 });
 
-app.post('/api/books', async (req, res) => {
+app.post('/api/books', strictLimiter, async (req, res) => {
   try {
     const { title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
     
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
+    }
+
+    // Validate input
+    if (title.length > 500 || (author && author.length > 200) || (notes && notes.length > 2000)) {
+      return res.status(400).json({ error: 'Input too long' });
     }
 
     const { data, error } = await supabase
@@ -83,11 +225,18 @@ app.post('/api/books', async (req, res) => {
 app.get('/api/comments', async (req, res) => {
   try {
     const { limit = 50 } = req.query;
+    
+    // Validate limit
+    const limitNum = parseInt(limit);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
+      return res.status(400).json({ error: 'Invalid limit parameter' });
+    }
+    
     const { data, error } = await supabase
       .from('comments')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(parseInt(limit));
+      .limit(limitNum);
     
     if (error) throw error;
     res.json(data);
@@ -97,12 +246,17 @@ app.get('/api/comments', async (req, res) => {
   }
 });
 
-app.post('/api/comments', async (req, res) => {
+app.post('/api/comments', strictLimiter, async (req, res) => {
   try {
     const { text, sentiment_score, user_id = 'anonymous' } = req.body;
     
     if (!text || text.trim().length === 0) {
       return res.status(400).json({ error: 'Comment text is required' });
+    }
+
+    // Validate input
+    if (text.length > 1000) {
+      return res.status(400).json({ error: 'Comment too long' });
     }
 
     const { data, error } = await supabase
@@ -143,12 +297,17 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-app.post('/api/projects', async (req, res) => {
+app.post('/api/projects', strictLimiter, async (req, res) => {
   try {
     const { title, description, github_url, live_url, technologies, featured = false } = req.body;
     
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
+    }
+
+    // Validate input
+    if (title.length > 200 || (description && description.length > 2000)) {
+      return res.status(400).json({ error: 'Input too long' });
     }
 
     const { data, error } = await supabase
@@ -172,14 +331,32 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    blockedIPs: blockedIPs.size,
+    suspiciousIPs: suspiciousIPs.size
+  });
+});
+
 // Catch-all route for static files and SPA routing
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📚 API endpoints available at http://localhost:${PORT}/api`);
   console.log(`🌐 Static files served from /public directory`);
+  console.log(`🛡️  DDoS protection enabled`);
+  console.log(`📊 Health check available at http://localhost:${PORT}/api/health`);
 }); 
