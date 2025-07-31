@@ -139,7 +139,20 @@ app.use('/styles', express.static('public/styles', {
   }
 }));
 
-app.use('/assets', express.static('public/assets'));
+app.use('/assets', express.static('public/assets', {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (path.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+    }
+  }
+}));
+
 app.use('/components', express.static('public/components'));
 
 // Serve static files from public directory (bypass DDoS protection for static assets)
@@ -387,6 +400,22 @@ app.get('/projects.html', (req, res) => {
 app.get('/favicon.ico', (req, res) => {
   // Return a 204 No Content to prevent 403 errors
   res.status(204).end();
+});
+
+// Explicit routes for critical files with proper MIME types
+app.get('/scripts/dark-mode-init.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'public/scripts/dark-mode-init.js'));
+});
+
+app.get('/scripts/main.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'public/scripts/main.js'));
+});
+
+app.get('/styles/main.css', (req, res) => {
+  res.setHeader('Content-Type', 'text/css');
+  res.sendFile(path.join(__dirname, 'public/styles/main.css'));
 });
 
 // Catch-all route for static files and SPA routing
