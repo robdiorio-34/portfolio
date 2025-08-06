@@ -4,9 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import slowDown from 'express-slow-down';
 
 // Load environment variables
 dotenv.config();
@@ -22,55 +20,6 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
-
-// DDoS Protection - IP tracking for blocking
-const suspiciousIPs = new Map();
-const blockedIPs = new Set();
-const requestCounts = new Map();
-
-// Clean up old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, data] of suspiciousIPs.entries()) {
-    if (now - data.lastSeen > 300000) { // 5 minutes
-      suspiciousIPs.delete(ip);
-    }
-  }
-  for (const [ip, timestamp] of requestCounts.entries()) {
-    if (now - timestamp > 60000) { // 1 minute
-      requestCounts.delete(ip);
-    }
-  }
-}, 300000);
-
-// IP blocking middleware
-const ipBlocker = (req, res, next) => {
-  const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
-  
-  if (blockedIPs.has(clientIP)) {
-    return res.status(403).json({ error: 'Access denied' });
-  }
-  
-  // Track suspicious behavior
-  const now = Date.now();
-  const requestCount = requestCounts.get(clientIP) || 0;
-  
-  if (requestCount > 100) { // More than 100 requests per minute
-    suspiciousIPs.set(clientIP, {
-      count: (suspiciousIPs.get(clientIP)?.count || 0) + 1,
-      lastSeen: now
-    });
-    
-    if (suspiciousIPs.get(clientIP).count > 5) {
-      blockedIPs.add(clientIP);
-      console.log(`🚫 IP ${clientIP} blocked for suspicious activity`);
-      return res.status(403).json({ error: 'Access denied' });
-    }
-  }
-  
-  requestCounts.set(clientIP, now);
-  next();
-};
 
 // Security middleware
 app.use(helmet({
@@ -90,42 +39,12 @@ app.use(helmet({
   }
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: { error: 'Too many requests, please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => req.path.startsWith('/api/books') && req.method === 'GET', // Allow more requests for reading books
-});
-
-const strictLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // limit each IP to 10 requests per minute for sensitive operations
-  message: { error: 'Too many requests, please slow down.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Speed limiting for API endpoints
-const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 50, // allow 50 requests per 15 minutes, then...
-  delayMs: () => 500 // begin adding 500ms of delay per request above 50
-});
-
 // Middleware
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Limit request body size
-
-// Apply DDoS protection only to API routes and dynamic content
-app.use('/api', ipBlocker);
-app.use('/api', limiter);
-app.use('/api', speedLimiter);
 
 // Request validation middleware
 const validateRequest = (req, res, next) => {
@@ -167,33 +86,12 @@ app.use('/api', validateRequest);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
-  const isBlocked = blockedIPs.has(clientIP);
-  
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    clientIP,
-    isBlocked,
-    blockedIPs: blockedIPs.size,
-    suspiciousIPs: suspiciousIPs.size,
-    maxRequestsPerMinute: 100, // Assuming a default value for max requests
-    suspiciousThreshold: 5 // Assuming a default value for suspicious threshold
+    message: 'API is running successfully'
   });
-});
-
-// Unblock IP endpoint (for debugging)
-app.post('/api/unblock/:ip', (req, res) => {
-  const { ip } = req.params;
-  if (blockedIPs.has(ip)) {
-    blockedIPs.delete(ip);
-    suspiciousIPs.delete(ip);
-    console.log(`✅ IP ${ip} unblocked`);
-    res.json({ success: true, message: `IP ${ip} unblocked` });
-  } else {
-    res.json({ success: false, message: `IP ${ip} was not blocked` });
-  }
 });
 
 // API Routes
@@ -218,7 +116,7 @@ app.get('/api/books', async (req, res) => {
   }
 });
 
-app.post('/api/books', strictLimiter, async (req, res) => {
+app.post('/api/books', async (req, res) => {
   try {
     const { title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
     
@@ -279,7 +177,7 @@ app.get('/api/comments', async (req, res) => {
   }
 });
 
-app.post('/api/comments', strictLimiter, async (req, res) => {
+app.post('/api/comments', async (req, res) => {
   try {
     const { text, sentiment_score, user_id = 'anonymous' } = req.body;
     
@@ -330,7 +228,7 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-app.post('/api/projects', strictLimiter, async (req, res) => {
+app.post('/api/projects', async (req, res) => {
   try {
     const { title, description, github_url, live_url, technologies, featured = false } = req.body;
     
