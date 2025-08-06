@@ -46,6 +46,17 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' })); // Limit request body size
 
+// Serve static files and handle SPA routing (only in development)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    // Serve static files from public directory
+    app.use(express.static('public'));
+  
+    // Handle all routes for SPA (Single Page Application)
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    });
+  }
+
 // Request validation middleware
 const validateRequest = (req, res, next) => {
   // Check content length
@@ -267,6 +278,16 @@ app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+// Start server locally (only if not in Vercel environment)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📚 API endpoints available at http://localhost:${PORT}/api`);
+    console.log(`🌐 Static files served from /public directory`);
+    console.log(`📊 Health check available at http://localhost:${PORT}/api/health`);
+  });
+}
 
 // Export for Vercel
 export default app; 
