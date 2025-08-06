@@ -122,81 +122,6 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' })); // Limit request body size
 
-// Configure proper MIME types for static files
-app.use('/scripts', express.static('public/scripts', {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    }
-  }
-}));
-
-app.use('/styles', express.static('public/styles', {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
-
-app.use('/assets', express.static('public/assets', {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.svg')) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (path.endsWith('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    } else if (path.endsWith('.pdf')) {
-      res.setHeader('Content-Type', 'application/pdf');
-    }
-  }
-}));
-
-app.use('/components', express.static('public/components'));
-
-// Serve static files from public directory with comprehensive MIME type handling
-app.use(express.static('public', {
-  setHeaders: (res, path) => {
-    // JavaScript files
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    }
-    // CSS files
-    else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-    // Image files
-    else if (path.endsWith('.svg')) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (path.endsWith('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    } else if (path.endsWith('.gif')) {
-      res.setHeader('Content-Type', 'image/gif');
-    } else if (path.endsWith('.webp')) {
-      res.setHeader('Content-Type', 'image/webp');
-    }
-    // Document files
-    else if (path.endsWith('.pdf')) {
-      res.setHeader('Content-Type', 'application/pdf');
-    } else if (path.endsWith('.json')) {
-      res.setHeader('Content-Type', 'application/json');
-    }
-    // Font files
-    else if (path.endsWith('.woff')) {
-      res.setHeader('Content-Type', 'font/woff');
-    } else if (path.endsWith('.woff2')) {
-      res.setHeader('Content-Type', 'font/woff2');
-    } else if (path.endsWith('.ttf')) {
-      res.setHeader('Content-Type', 'font/ttf');
-    } else if (path.endsWith('.eot')) {
-      res.setHeader('Content-Type', 'application/vnd.ms-fontobject');
-    }
-  }
-}));
-
 // Apply DDoS protection only to API routes and dynamic content
 app.use('/api', ipBlocker);
 app.use('/api', limiter);
@@ -239,6 +164,37 @@ const apiMonitor = (req, res, next) => {
 
 app.use('/api', apiMonitor);
 app.use('/api', validateRequest);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
+  const isBlocked = blockedIPs.has(clientIP);
+  
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    clientIP,
+    isBlocked,
+    blockedIPs: blockedIPs.size,
+    suspiciousIPs: suspiciousIPs.size,
+    maxRequestsPerMinute: 100, // Assuming a default value for max requests
+    suspiciousThreshold: 5 // Assuming a default value for suspicious threshold
+  });
+});
+
+// Unblock IP endpoint (for debugging)
+app.post('/api/unblock/:ip', (req, res) => {
+  const { ip } = req.params;
+  if (blockedIPs.has(ip)) {
+    blockedIPs.delete(ip);
+    suspiciousIPs.delete(ip);
+    console.log(`✅ IP ${ip} unblocked`);
+    res.json({ success: true, message: `IP ${ip} unblocked` });
+  } else {
+    res.json({ success: false, message: `IP ${ip} was not blocked` });
+  }
+});
 
 // API Routes
 
@@ -408,55 +364,11 @@ app.post('/api/projects', strictLimiter, async (req, res) => {
   }
 });
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
-    timestamp: new Date().toISOString(),
-    blockedIPs: blockedIPs.size,
-    suspiciousIPs: suspiciousIPs.size
-  });
-});
-
-// Serve specific HTML pages
-app.get('/reading.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'pages', 'reading.html'));
-});
-
-app.get('/comments.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'pages', 'comments.html'));
-});
-
-app.get('/resume.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'pages', 'resume.html'));
-});
-
-app.get('/projects.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'pages', 'projects.html'));
-});
-
-// Handle favicon requests
-app.get('/favicon.ico', (req, res) => {
-  // Return a 204 No Content to prevent 403 errors
-  res.status(204).end();
-});
-
-// Catch-all route for static files and SPA routing
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📚 API endpoints available at http://localhost:${PORT}/api`);
-  console.log(`🌐 Static files served from /public directory`);
-  console.log(`🛡️  DDoS protection enabled`);
-  console.log(`📊 Health check available at http://localhost:${PORT}/api/health`);
-}); 
+// Export for Vercel
+export default app; 

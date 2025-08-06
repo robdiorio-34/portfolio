@@ -4,12 +4,56 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "/server.js"
+    },
+    {
+      "src": "/scripts/(.*)",
+      "dest": "/public/scripts/$1"
+    },
+    {
+      "src": "/styles/(.*)",
+      "dest": "/public/styles/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    },
+    {
+      "src": "/components/(.*)",
+      "dest": "/public/components/$1"
+    },
+    {
+      "src": "/reading.html",
+      "dest": "/public/pages/reading.html"
+    },
+    {
+      "src": "/comments.html",
+      "dest": "/public/pages/comments.html"
+    },
+    {
+      "src": "/resume.html",
+      "dest": "/public/pages/resume.html"
+    },
+    {
+      "src": "/projects.html",
+      "dest": "/public/pages/projects.html"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/index.html"
     }
   ]
 }
