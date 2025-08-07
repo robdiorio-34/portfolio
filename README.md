@@ -140,3 +140,5 @@ The CSS is organized into modular files:
   - Implement soft delete for books/comments/projects
   - Add audit logging for admin operations
   - Create database migrations for schema changes
+
+  - pull admin modals out to their own components

@@ -97,3 +97,9 @@ body.dark .nav-link:hover {
   background-color: #2a2d2e;
   transition-delay: 0.05s; /* Synchronized transition */
 } 
+/* Add nav-left container styles */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
