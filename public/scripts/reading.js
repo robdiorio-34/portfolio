@@ -1,397 +1,76 @@
 // Reading Page JavaScript
 
-// Sample book data - you can replace this with your actual books
-const booksData = {
-  currentlyReading: [
-    {
-      id: 'nightfall',
-      title: 'Nightfall',
-      author: 'Isaac Asimov and Robert Silverberg',
-      genre: 'Science Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0553290991.01.L.jpg',
-      rating: null,
-      notes: 'Currently reading this science fiction novel. Excited to explore this collaboration between two great authors.'
-    },
-    {
-      id: 'brothers-karamazov',
-      title: 'The Brothers Karamazov',
-      author: 'Fyodor Dostoevsky',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0374528373.01.L.jpg',
-      rating: null,
-      notes: 'Currently reading this classic Russian novel. Looking forward to diving into this philosophical masterpiece.'
+// Function to transform API book data to match the expected format
+function transformApiBook(apiBook) {
+  return {
+    id: apiBook.id,
+    title: apiBook.title,
+    author: apiBook.author,
+    genre: apiBook.genre,
+    cover: apiBook.cover_url,
+    rating: apiBook.rating,
+    notes: apiBook.notes,
+    completionDate: apiBook.completion_date ? formatCompletionDate(apiBook.completion_date) : null
+  };
+}
+
+// Function to format completion date for display
+function formatCompletionDate(dateString) {
+  if (!dateString) return null;
+  
+  const date = new Date(dateString);
+  const month = date.getMonth() + 1; // Month is 0-indexed
+  const day = date.getDate();
+  const year = date.getFullYear().toString().slice(-2); // Get last 2 digits
+  
+  return `${month}/${day}/${year}`;
+}
+
+// Function to fetch books from API
+async function fetchBooksFromAPI() {
+  try {
+    console.log('📚 Fetching books from API...');
+    
+    // Fetch all books
+    const allBooks = await window.portfolioAPI.getBooks();
+    
+    if (!allBooks || allBooks.length === 0) {
+      console.warn('⚠️ No books returned from API');
+      return null;
     }
-  ],
-  wantToRead: [
-    {
-      id: '1q84',
-      title: '1Q84',
-      author: 'Haruki Murakami',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0099578077.01.L.jpg',
-      rating: null,
-      notes: 'Want to read this acclaimed novel by Haruki Murakami. Looking forward to diving into this complex and imaginative story.'
-    }
-  ],
-  haveRead: [
-    {
-      id: 'everything-is-tuberculosis',
-      title: 'Everything is Tuberculosis',
-      author: 'John Greene',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0525556575.01.L.jpg',
-      rating: null,
-      notes: 'Finished 6/30/25 (audio book)',
-      completionDate: '6/30/25'
-    },
-    {
-      id: 'blood-meridian',
-      title: 'Blood Meridian',
-      author: 'Cormac McCarthy',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0679728759.01.L.jpg',
-      rating: null,
-      notes: 'Finished 6/14/25',
-      completionDate: '6/14/25'
-    },
-    {
-      id: 'flash-boys',
-      title: 'Flash Boys',
-      author: 'Michael Lewis',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0393244660.01.L.jpg',
-      rating: null,
-      notes: 'Finished 10/13/24',
-      completionDate: '10/13/24'
-    },
-    {
-      id: 'never-let-me-go',
-      title: 'Never Let Me Go',
-      author: 'Kazuo Ishiguro',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1400078776.01.L.jpg',
-      rating: null,
-      notes: 'Finished 8/19/24',
-      completionDate: '8/19/24'
-    },
-    {
-      id: 'project-hail-mary',
-      title: 'Project Hail Mary',
-      author: 'Andy Weir',
-      genre: 'Science Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0593135202.01.L.jpg',
-      rating: null,
-      notes: 'Finished 7/24/24',
-      completionDate: '7/24/24'
-    },
-    {
-      id: 'amazing-adventures-cavalier-clay',
-      title: 'The Amazing Adventures of Kavalier & Clay',
-      author: 'Michael Chabon',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0312282990.01.L.jpg',
-      rating: null,
-      notes: 'Finished 5/21/24',
-      completionDate: '5/21/24'
-    },
-    {
-      id: 'anomaly',
-      title: 'The Anomaly',
-      author: 'Hervé Le Tellier',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1635421691.01.L.jpg',
-      rating: null,
-      notes: 'Finished 1/10/24',
-      completionDate: '1/10/24'
-    },
-    {
-      id: 'killers-flower-moon',
-      title: 'Killers of the Flower Moon',
-      author: 'David Grann',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385534248.01.L.jpg',
-      rating: null,
-      notes: 'Finished 12/11/23',
-      completionDate: '12/11/23'
-    },
-    {
-      id: 'chip-war',
-      title: 'Chip War',
-      author: 'Chris Miller',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1982172002.01.L.jpg',
-      rating: null,
-      notes: 'Finished 11/5/23',
-      completionDate: '11/5/23'
-    },
-    {
-      id: 'god-bless-you-mr-rosewater',
-      title: 'God Bless You, Mr. Rosewater',
-      author: 'Kurt Vonnegut',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333471.01.L.jpg',
-      rating: null,
-      notes: 'Finished 9/27/23',
-      completionDate: '9/27/23'
-    },
-    {
-      id: 'defining-decade',
-      title: 'The Defining Decade',
-      author: 'Meg Jay',
-      genre: 'Self-Help',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0446561754.01.L.jpg',
-      rating: null,
-      notes: 'Finished 9/8/23',
-      completionDate: '9/8/23'
-    },
-    {
-      id: 'wild-sheep-chase',
-      title: 'A Wild Sheep Chase',
-      author: 'Haruki Murakami',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/037571894X.01.L.jpg',
-      rating: null,
-      notes: 'Finished 8/14/23',
-      completionDate: '8/14/23'
-    },
-    {
-      id: 'fountainhead',
-      title: 'The Fountainhead',
-      author: 'Ayn Rand',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451191153.01.L.jpg',
-      rating: null,
-      notes: 'Finished 7/20/23',
-      completionDate: '7/20/23'
-    },
-    {
-      id: 'things-they-carried',
-      title: 'The Things They Carried',
-      author: 'Tim O\'Brien',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0618706410.01.L.jpg',
-      rating: null,
-      notes: 'Finished 4/11/23',
-      completionDate: '4/11/23'
-    },
-    {
-      id: 'kafka-on-shore',
-      title: 'Kafka on the Shore',
-      author: 'Haruki Murakami',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1400079276.01.L.jpg',
-      rating: null,
-      notes: 'Finished 3/19/23',
-      completionDate: '3/19/23'
-    },
-    {
-      id: 'midnight-library',
-      title: 'The Midnight Library',
-      author: 'Matt Haig',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0525559477.01.L.jpg',
-      rating: null,
-      notes: 'Finished 1/28/23',
-      completionDate: '1/28/23'
-    },
-    {
-      id: 'norwegian-wood',
-      title: 'Norwegian Wood',
-      author: 'Haruki Murakami',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0375704027.01.L.jpg',
-      rating: null,
-      notes: 'Finished 1/7/23',
-      completionDate: '1/7/23'
-    },
-    {
-      id: 'player-piano',
-      title: 'Player Piano',
-      author: 'Kurt Vonnegut',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333781.01.L.jpg',
-      rating: null,
-      notes: 'Finished 12/15/22',
-      completionDate: '12/15/22'
-    },
-    {
-      id: 'big-panda-tiny-dragon',
-      title: 'Big Panda and Tiny Dragon',
-      author: 'James Norbury',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1647225124.01.L.jpg',
-      rating: null,
-      notes: 'Finished 10/24/22',
-      completionDate: '10/24/22'
-    },
-    {
-      id: 'last-lecture',
-      title: 'The Last Lecture',
-      author: 'Randy Pausch',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1401323251.01.L.jpg',
-      rating: null,
-      notes: 'Finished 10/16/22',
-      completionDate: '10/16/22'
-    },
-    {
-      id: 'fail-safe',
-      title: 'Fail Safe',
-      author: 'Eugene Burdick',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/088001654X.01.L.jpg',
-      rating: null,
-      notes: 'Finished 10/14/22',
-      completionDate: '10/14/22'
-    },
-    {
-      id: 'jungle',
-      title: 'The Jungle',
-      author: 'Upton Sinclair',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451526341.01.L.jpg',
-      rating: null,
-      notes: 'Finished 8/3/22',
-      completionDate: '8/3/22'
-    },
-    {
-      id: 'zen-motorcycle',
-      title: 'Zen and the Art of Motorcycle Maintenance',
-      author: 'Robert M. Pirsig',
-      genre: 'Philosophy',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0060589469.01.L.jpg',
-      rating: null,
-      notes: 'Finished 5/23/22',
-      completionDate: '5/23/22'
-    },
-    {
-      id: 'cats-cradle',
-      title: 'Cat\'s Cradle',
-      author: 'Kurt Vonnegut',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/038533348X.01.L.jpg',
-      rating: null,
-      notes: 'A brilliant satirical novel about the end of the world.'
-    },
-    {
-      id: '1984',
-      title: '1984',
-      author: 'George Orwell',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0451524934.01.L.jpg',
-      rating: null,
-      notes: 'A dystopian classic that remains relevant today.'
-    },
-    {
-      id: 'subtle-art',
-      title: 'The Subtle Art of Not Giving a F*ck',
-      author: 'Mark Manson',
-      genre: 'Self-Help',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0062457713.01.L.jpg',
-      rating: null,
-      notes: 'A refreshing take on self-help that challenges conventional wisdom.'
-    },
-    {
-      id: 'walk-woods',
-      title: 'A Walk in the Woods',
-      author: 'Bill Bryson',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/178416111X.01.L.jpg',
-      rating: null,
-      notes: 'A humorous and informative account of hiking the Appalachian Trail.'
-    },
-    {
-      id: 'slaughterhouse-five',
-      title: 'Slaughterhouse-Five',
-      author: 'Kurt Vonnegut',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0385333846.01.L.jpg',
-      rating: null,
-      notes: 'A powerful anti-war novel with a unique narrative structure.'
-    },
-    {
-      id: 'fahrenheit-451',
-      title: 'Fahrenheit 451',
-      author: 'Ray Bradbury',
-      genre: 'Science Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1451673310.01.L.jpg',
-      rating: null,
-      notes: 'A prophetic novel about censorship and the power of books.'
-    },
-    {
-      id: 'dune',
-      title: 'Dune',
-      author: 'Frank Herbert',
-      genre: 'Science Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0441172717.01.L.jpg',
-      rating: null,
-      notes: 'A masterpiece of science fiction with complex world-building.'
-    },
-    {
-      id: 'recursion',
-      title: 'Recursion',
-      author: 'Blake Crouch',
-      genre: 'Science Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1524759783.01.L.jpg',
-      rating: null,
-      notes: 'A mind-bending thriller about memory and reality.'
-    },
-    {
-      id: 'middlesex',
-      title: 'Middlesex',
-      author: 'Jeffrey Eugenides',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0312422156.01.L.jpg',
-      rating: null,
-      notes: 'A Pulitzer Prize-winning novel about identity and family.'
-    },
-    {
-      id: 'alchemist',
-      title: 'The Alchemist',
-      author: 'Paulo Coelho',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0062315005.01.L.jpg',
-      rating: null,
-      notes: 'A philosophical novel about following your dreams.'
-    },
-    {
-      id: 'catch-22',
-      title: 'Catch-22',
-      author: 'Joseph Heller',
-      genre: 'Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1451626657.01.L.jpg',
-      rating: null,
-      notes: 'A satirical masterpiece about the absurdity of war.'
-    },
-    {
-      id: 'how-win-friends',
-      title: 'How to Win Friends and Influence People',
-      author: 'Dale Carnegie',
-      genre: 'Self-Help',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0671027034.01.L.jpg',
-      rating: null,
-      notes: 'A classic guide to human relations and communication.'
-    },
-    {
-      id: 'salt',
-      title: 'Salt',
-      author: 'Mark Kurlansky',
-      genre: 'Non-Fiction',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/0142001619.01.L.jpg',
-      rating: null,
-      notes: 'A fascinating history of how salt shaped human civilization.'
-    },
-    {
-      id: 'institute',
-      title: 'The Institute',
-      author: 'Stephen King',
-      genre: 'Horror',
-      cover: 'https://images-na.ssl-images-amazon.com/images/P/1982110562.01.L.jpg',
-      rating: null,
-      notes: 'A gripping thriller about children with psychic abilities.'
-    }
-  ]
-};
+    
+    console.log(`✅ Successfully fetched ${allBooks.length} books from API`);
+    
+    // Group books by status
+    const booksByStatus = {
+      currentlyReading: [],
+      wantToRead: [],
+      haveRead: []
+    };
+    
+    allBooks.forEach(book => {
+      const transformedBook = transformApiBook(book);
+      
+      switch (book.status) {
+        case 'currently_reading':
+          booksByStatus.currentlyReading.push(transformedBook);
+          break;
+        case 'want_to_read':
+          booksByStatus.wantToRead.push(transformedBook);
+          break;
+        case 'have_read':
+          booksByStatus.haveRead.push(transformedBook);
+          break;
+      }
+    });
+    
+    return booksByStatus;
+    
+  } catch (error) {
+    console.error('❌ Error fetching books from API:', error);
+    return null;
+  }
+}
 
 // Function to create a book card element
 function createBookCard(book) {
@@ -480,11 +159,33 @@ function closeBookModal() {
 }
 
 // Initialize the reading page
-function initReadingPage() {
+async function initReadingPage() {
+  console.log('📖 Initializing reading page...');
+  
+  // Try to fetch books from API first
+  let booksToUse = await fetchBooksFromAPI();
+  
+  // If API fails, show error message
+  if (!booksToUse) {
+    console.error('❌ Failed to fetch books from API');
+    // Show error message to user
+    const sections = ['currently-reading-grid', 'want-to-read-grid', 'have-read-grid'];
+    sections.forEach(sectionId => {
+      const section = document.getElementById(sectionId);
+      section.innerHTML = `
+        <div class="empty-section">
+          <p>Unable to load books from the server.</p>
+          <p>Please try refreshing the page.</p>
+        </div>
+      `;
+    });
+    return;
+  }
+  
   // Populate all sections
-  populateSection('currently-reading-grid', booksData.currentlyReading);
-  populateSection('want-to-read-grid', booksData.wantToRead);
-  populateSection('have-read-grid', booksData.haveRead);
+  populateSection('currently-reading-grid', booksToUse.currentlyReading);
+  populateSection('want-to-read-grid', booksToUse.wantToRead);
+  populateSection('have-read-grid', booksToUse.haveRead);
   
   // Set up modal close functionality
   const modal = document.getElementById('book-modal');
@@ -506,6 +207,8 @@ function initReadingPage() {
       closeBookModal();
     }
   });
+  
+  console.log('✅ Reading page initialized');
 }
 
 // Initialize when DOM is loaded
