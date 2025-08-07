@@ -48,10 +48,10 @@ class PortfolioAPI {
     });
   }
 
-  async updateBook(bookData) {
+  async updateBook(bookId, bookData) {
     return this.apiCall('books', {
       method: 'PUT',
-      body: JSON.stringify(bookData),
+      body: JSON.stringify({ id: bookId, ...bookData }),
     });
   }
 

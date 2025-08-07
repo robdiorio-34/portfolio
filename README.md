@@ -125,29 +125,18 @@ The CSS is organized into modular files:
   - Add site links to tiles
   - Add preview pic of projects in tiles
 
-  portfolio/
-  ├── 📁 public/ # 🎨 FRONTEND (Static Files)
-  │ ├── index.html # Main landing page
-  │ ├── pages/ # HTML pages
-  │ │ ├── comments.html # Comments page
-  │ │ ├── reading.html # Reading page
-  │ │ ├── projects.html # Projects page
-  │ │ └── resume.html # Resume page
-  │ ├── scripts/ # Frontend JavaScript
-  │ │ ├── main.js # Core functionality
-  │ │ ├── falling-comments.js # Comments feature
-  │ │ ├── reading.js # Reading page logic
-  │ │ └── supabase-client.js # API client utility
-  │ ├── styles/ # CSS files
-  │ ├── components/ # HTML components
-  │ └── assets/ # Images, icons
-  │
-  ├── 📁 api/ # 🔧 BACKEND (Vercel Serverless)
-  │ ├── books.js # Books API endpoints
-  │ ├── comments.js # Comments API endpoints
-  │ └── projects.js # Projects API endpoints
-  │
-  ├── 🔧 server.js # 🖥️ BACKEND (Express Server - Local Dev)
-  ├── 📄 package.json # Dependencies & scripts
-  ├── 📄 .env # Environment variables
-  └── 📄 supabase-schema.sql # Database schema
+- **Security & Authentication**
+
+  - Implement proper Supabase authentication with user roles
+  - Replace password-based admin system with Supabase Auth
+  - Add proper RLS (Row Level Security) policies for admin operations
+  - Create user roles: `admin`, `user`, `anonymous`
+  - Secure API endpoints with JWT token validation
+  - Add rate limiting for API endpoints
+
+- **Database & API**
+
+  - Add proper error handling and validation for all API endpoints
+  - Implement soft delete for books/comments/projects
+  - Add audit logging for admin operations
+  - Create database migrations for schema changes

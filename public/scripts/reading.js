@@ -151,6 +151,9 @@ function openBookModal(book) {
   document.body.style.overflow = 'hidden';
 }
 
+// Make function global for admin auth to override
+window.openBookModal = openBookModal;
+
 // Function to close book modal
 function closeBookModal() {
   const modal = document.getElementById('book-modal');

@@ -32,6 +32,10 @@
       "dest": "/public/components/$1"
     },
     {
+      "src": "/admin.html",
+      "dest": "/public/pages/admin.html"
+    },
+    {
       "src": "/reading.html",
       "dest": "/public/pages/reading.html"
     },

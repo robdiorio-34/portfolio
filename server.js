@@ -153,6 +153,72 @@ app.post('/api/books', async (req, res) => {
   }
 });
 
+app.put('/api/books', async (req, res) => {
+  try {
+    const { id, title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Book ID is required' });
+    }
+    
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+
+    // Validate input
+    if (title.length > 500 || (author && author.length > 200) || (notes && notes.length > 2000)) {
+      return res.status(400).json({ error: 'Input too long' });
+    }
+
+    const { data, error } = await supabase
+      .from('books')
+      .update({
+        title,
+        author,
+        genre,
+        cover_url,
+        rating,
+        notes,
+        status: status || 'want_to_read',
+        completion_date
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+    
+    res.json(data[0]);
+  } catch (error) {
+    console.error('Books API Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/books', async (req, res) => {
+  try {
+    const { id } = req.query;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Book ID is required' });
+    }
+
+    const { error } = await supabase
+      .from('books')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    console.error('Books API Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Comments API
 app.get('/api/comments', async (req, res) => {
   try {
@@ -298,6 +364,38 @@ app.post('/api/projects', async (req, res) => {
     res.status(201).json(data);
   } catch (error) {
     console.error('Projects API Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Admin API
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { password } = req.body;
+    
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+
+    // Check against environment variable
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    
+    if (!adminPassword) {
+      console.error('ADMIN_PASSWORD environment variable not set');
+      return res.status(500).json({ error: 'Admin configuration error' });
+    }
+
+    if (password === adminPassword) {
+      res.json({ 
+        success: true, 
+        message: 'Login successful',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.status(401).json({ error: 'Invalid password' });
+    }
+  } catch (error) {
+    console.error('Admin Login Error:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -26,5 +26,8 @@
 /* 8. Reading styles - Book cards, grid layout, and modal */
 @import url('./reading.css');
 
-/* 9. Responsive styles - Media queries (load last for proper override) */
+/* 9. Admin styles - Admin controls, modals, and forms */
+@import url('./admin.css');
+
+/* 10. Responsive styles - Media queries (load last for proper override) */
 @import url('./responsive.css'); 
