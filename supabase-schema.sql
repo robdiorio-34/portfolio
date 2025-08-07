@@ -21,6 +21,7 @@ CREATE TABLE comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   text TEXT NOT NULL,
   sentiment_score FLOAT,
+  active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   user_id TEXT DEFAULT 'anonymous'
 );

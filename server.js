@@ -47,30 +47,6 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' })); // Limit request body size
 
-// Serve static files and handle SPA routing (only in development)
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  // Handle specific HTML page routes FIRST (before static middleware)
-  app.get('*.html', (req, res, next) => {
-    const requestedPath = req.path;
-    const possiblePageFile = path.join(__dirname, 'public', 'pages', requestedPath);
-    
-    if (fs.existsSync(possiblePageFile)) {
-      return res.sendFile(possiblePageFile);
-    }
-    
-    // If not found in pages, let static middleware handle it
-    next();
-  });
-  
-  // Serve static files from public directory (for assets, scripts, styles, components, etc.)
-  app.use(express.static('public'));
-  
-  // Handle all other routes for SPA (Single Page Application)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
-}
-
 // Request validation middleware
 const validateRequest = (req, res, next) => {
   // Check content length
@@ -191,6 +167,7 @@ app.get('/api/comments', async (req, res) => {
     const { data, error } = await supabase
       .from('comments')
       .select('*')
+      .eq('active', true) // Only return active comments
       .order('created_at', { ascending: false })
       .limit(limitNum);
     
@@ -220,7 +197,8 @@ app.post('/api/comments', async (req, res) => {
       .insert([{
         text: text.trim(),
         sentiment_score: sentiment_score || null,
-        user_id
+        user_id,
+        active: true // Set new comments as active by default
       }])
       .select()
       .single();
@@ -229,6 +207,43 @@ app.post('/api/comments', async (req, res) => {
     res.status(201).json(data);
   } catch (error) {
     console.error('Comments API Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint to deactivate all comments (clear comments)
+app.post('/api/comments/clear', async (req, res) => {
+  try {
+    // Get count of active comments before clearing
+    const { count: activeCount, error: countError } = await supabase
+      .from('comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('active', true);
+    
+    if (countError) {
+      console.error('Error counting active comments:', countError);
+      return res.status(500).json({ error: countError.message });
+    }
+    
+    // Perform the bulk update
+    const { error } = await supabase
+      .from('comments')
+      .update({ active: false })
+      .eq('active', true);
+
+    if (error) {
+      console.error('Error updating comments:', error);
+      return res.status(500).json({ error: error.message });
+    }
+    
+    console.log(`Bulk clear: Deactivated ${activeCount} comments`);
+    res.json({ 
+      message: 'All comments deactivated successfully', 
+      count: activeCount,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Clear Comments API Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -286,6 +301,30 @@ app.post('/api/projects', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Serve static files and handle SPA routing (only in development)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  // Handle specific HTML page routes FIRST (before static middleware)
+  app.get('*.html', (req, res, next) => {
+    const requestedPath = req.path;
+    const possiblePageFile = path.join(__dirname, 'public', 'pages', requestedPath);
+    
+    if (fs.existsSync(possiblePageFile)) {
+      return res.sendFile(possiblePageFile);
+    }
+    
+    // If not found in pages, let static middleware handle it
+    next();
+  });
+  
+  // Serve static files from public directory (for assets, scripts, styles, components, etc.)
+  app.use(express.static('public'));
+  
+  // Handle all other routes for SPA (Single Page Application)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {

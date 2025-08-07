@@ -79,6 +79,12 @@ class PortfolioAPI {
     });
   }
 
+  async clearComments() {
+    return this.apiCall('comments/clear', {
+      method: 'POST',
+    });
+  }
+
   // Projects API methods
   async getProjects(featured = null) {
     const params = featured !== null ? `?featured=${featured}` : '';

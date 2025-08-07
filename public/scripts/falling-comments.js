@@ -239,13 +239,17 @@ class FallingComments {
 
   async clearStoredComments() {
     try {
-      // Note: This would require a bulk delete endpoint or individual deletes
-      // For now, we'll just clear the local cache
+      // Call the API to deactivate all comments
+      const result = await window.portfolioAPI.clearComments();
+      
+      // Clear the local cache
       this.storedComments = [];
       this.currentCommentIndex = 0;
-      console.log('Comments cleared (local cache only)');
+      
+      console.log('Comments cleared successfully:', result);
     } catch (error) {
       console.error('Error clearing comments:', error);
+      throw error;
     }
   }
 
