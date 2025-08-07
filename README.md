@@ -121,5 +121,33 @@ The CSS is organized into modular files:
   - Link AWS certs
 
 - Projects
+
   - Add site links to tiles
   - Add preview pic of projects in tiles
+
+  portfolio/
+  ├── 📁 public/ # 🎨 FRONTEND (Static Files)
+  │ ├── index.html # Main landing page
+  │ ├── pages/ # HTML pages
+  │ │ ├── comments.html # Comments page
+  │ │ ├── reading.html # Reading page
+  │ │ ├── projects.html # Projects page
+  │ │ └── resume.html # Resume page
+  │ ├── scripts/ # Frontend JavaScript
+  │ │ ├── main.js # Core functionality
+  │ │ ├── falling-comments.js # Comments feature
+  │ │ ├── reading.js # Reading page logic
+  │ │ └── supabase-client.js # API client utility
+  │ ├── styles/ # CSS files
+  │ ├── components/ # HTML components
+  │ └── assets/ # Images, icons
+  │
+  ├── 📁 api/ # 🔧 BACKEND (Vercel Serverless)
+  │ ├── books.js # Books API endpoints
+  │ ├── comments.js # Comments API endpoints
+  │ └── projects.js # Projects API endpoints
+  │
+  ├── 🔧 server.js # 🖥️ BACKEND (Express Server - Local Dev)
+  ├── 📄 package.json # Dependencies & scripts
+  ├── 📄 .env # Environment variables
+  └── 📄 supabase-schema.sql # Database schema

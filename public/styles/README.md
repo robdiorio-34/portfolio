@@ -40,3 +40,21 @@ The import order in `main.css` is important for CSS specificity and dependencies
 2. **Global styles** should go in `base.css`
 3. **Responsive styles** should go in `responsive.css`
 4. **New components** should get their own file if they're substantial
+
+To do
+
+- blog
+  - notes, things ive learned, trips
+- photos
+  - albums, highlights, etc
+- optimize mobile
+  - scrolling nav bar
+  - dynamically sized components
+- setup backend
+  - reading tables
+  - comments
+- Admin tools for reading
+  - add books and reviews in browser -> CRUD
+  - edit book tile info
+- reading page
+  - ranking/sorting

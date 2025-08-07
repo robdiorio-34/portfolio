@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
+import fs from 'fs';
 
 // Load environment variables
 dotenv.config();
@@ -48,14 +49,27 @@ app.use(express.json({ limit: '10mb' })); // Limit request body size
 
 // Serve static files and handle SPA routing (only in development)
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    // Serve static files from public directory
-    app.use(express.static('public'));
+  // Handle specific HTML page routes FIRST (before static middleware)
+  app.get('*.html', (req, res, next) => {
+    const requestedPath = req.path;
+    const possiblePageFile = path.join(__dirname, 'public', 'pages', requestedPath);
+    
+    if (fs.existsSync(possiblePageFile)) {
+      return res.sendFile(possiblePageFile);
+    }
+    
+    // If not found in pages, let static middleware handle it
+    next();
+  });
   
-    // Handle all routes for SPA (Single Page Application)
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    });
-  }
+  // Serve static files from public directory (for assets, scripts, styles, components, etc.)
+  app.use(express.static('public'));
+  
+  // Handle all other routes for SPA (Single Page Application)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+}
 
 // Request validation middleware
 const validateRequest = (req, res, next) => {
