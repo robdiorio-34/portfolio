@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "server/index.js",
       "use": "@vercel/node"
     },
     {
@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
+      "dest": "/server/index.js"
     },
     {
       "src": "/scripts/(.*)",
@@ -30,10 +30,6 @@
     {
       "src": "/components/(.*)",
       "dest": "/public/components/$1"
-    },
-    {
-      "src": "/admin.html",
-      "dest": "/public/pages/admin.html"
     },
     {
       "src": "/reading.html",

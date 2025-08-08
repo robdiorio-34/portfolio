@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Rob Diorio's Portfolio Website with Supabase Backend",
   "type": "module",
-  "main": "server.js",
+  "main": "server/index.js",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node server/index.js",
     "build": "echo 'Static site - no build needed'",
-    "start": "node server.js"
+    "start": "node server/index.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
