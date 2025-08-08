@@ -353,6 +353,10 @@ class AdminSession {
       const result = await this.addBook(formData);
       if (result.success) {
         modal.remove();
+        // Clear cache before reload
+        if (window.clearBooksCache) {
+          window.clearBooksCache();
+        }
         // Refresh the page to show new book
         window.location.reload();
       } else {
@@ -475,6 +479,10 @@ class AdminSession {
         if (bookModal) {
           bookModal.style.display = 'none';
         }
+        // Clear cache before reload
+        if (window.clearBooksCache) {
+          window.clearBooksCache();
+        }
         window.location.reload();
       } else {
         alert('Error updating book: ' + result.error);
@@ -505,6 +513,10 @@ class AdminSession {
         const bookModal = document.getElementById('book-modal');
         if (bookModal) {
           bookModal.style.display = 'none';
+        }
+        // Clear cache before reload
+        if (window.clearBooksCache) {
+          window.clearBooksCache();
         }
         window.location.reload();
       } catch (error) {

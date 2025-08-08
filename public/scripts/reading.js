@@ -1,77 +1,5 @@
 // Reading Page JavaScript
 
-// Function to transform API book data to match the expected format
-function transformApiBook(apiBook) {
-  return {
-    id: apiBook.id,
-    title: apiBook.title,
-    author: apiBook.author,
-    genre: apiBook.genre,
-    cover: apiBook.cover_url,
-    rating: apiBook.rating,
-    notes: apiBook.notes,
-    completionDate: apiBook.completion_date ? formatCompletionDate(apiBook.completion_date) : null
-  };
-}
-
-// Function to format completion date for display
-function formatCompletionDate(dateString) {
-  if (!dateString) return null;
-  
-  const date = new Date(dateString);
-  const month = date.getMonth() + 1; // Month is 0-indexed
-  const day = date.getDate();
-  const year = date.getFullYear().toString().slice(-2); // Get last 2 digits
-  
-  return `${month}/${day}/${year}`;
-}
-
-// Function to fetch books from API
-async function fetchBooksFromAPI() {
-  try {
-    console.log('📚 Fetching books from API...');
-    
-    // Fetch all books
-    const allBooks = await window.portfolioAPI.getBooks();
-    
-    if (!allBooks || allBooks.length === 0) {
-      console.warn('⚠️ No books returned from API');
-      return null;
-    }
-    
-    console.log(`✅ Successfully fetched ${allBooks.length} books from API`);
-    
-    // Group books by status
-    const booksByStatus = {
-      currentlyReading: [],
-      wantToRead: [],
-      haveRead: []
-    };
-    
-    allBooks.forEach(book => {
-      const transformedBook = transformApiBook(book);
-      
-      switch (book.status) {
-        case 'currently_reading':
-          booksByStatus.currentlyReading.push(transformedBook);
-          break;
-        case 'want_to_read':
-          booksByStatus.wantToRead.push(transformedBook);
-          break;
-        case 'have_read':
-          booksByStatus.haveRead.push(transformedBook);
-          break;
-      }
-    });
-    
-    return booksByStatus;
-    
-  } catch (error) {
-    console.error('❌ Error fetching books from API:', error);
-    return null;
-  }
-}
-
 // Function to create a book card element
 function createBookCard(book) {
   const card = document.createElement('div');
@@ -102,6 +30,12 @@ function createBookCard(book) {
 // Function to populate a section with books
 function populateSection(sectionId, books) {
   const section = document.getElementById(sectionId);
+  
+  // Safety check - only populate if section exists
+  if (!section) {
+    console.warn(`Section ${sectionId} not found, skipping population`);
+    return;
+  }
   
   if (books.length === 0) {
     section.innerHTML = `
@@ -161,26 +95,34 @@ function closeBookModal() {
   document.body.style.overflow = 'auto';
 }
 
-// Initialize the reading page
-async function initReadingPage() {
-  console.log('📖 Initializing reading page...');
+// Initialize reading page HTML (only called on reading page)
+async function initReadingPageHTML() {
+  console.log('📖 Initializing reading page HTML...');
   
-  // Try to fetch books from API first
-  let booksToUse = await fetchBooksFromAPI();
+  // Get books data from cache directly (should already be cached from main.js preload)
+  let booksToUse = getCachedBooks();
   
-  // If API fails, show error message
+  // If no cached data available, try to fetch fresh data
+  if (!booksToUse) {
+    console.log('📚 No cached data available, fetching fresh data...');
+    booksToUse = await getBooksData();
+  }
+  
+  // If still no data available, show error message
   if (!booksToUse) {
     console.error('❌ Failed to fetch books from API');
     // Show error message to user
     const sections = ['currently-reading-grid', 'want-to-read-grid', 'have-read-grid'];
     sections.forEach(sectionId => {
       const section = document.getElementById(sectionId);
-      section.innerHTML = `
-        <div class="empty-section">
-          <p>Unable to load books from the server.</p>
-          <p>Please try refreshing the page.</p>
-        </div>
-      `;
+      if (section) {
+        section.innerHTML = `
+          <div class="empty-section">
+            <p>Unable to load books from the server.</p>
+            <p>Please try refreshing the page.</p>
+          </div>
+        `;
+      }
     });
     return;
   }
@@ -211,8 +153,25 @@ async function initReadingPage() {
     }
   });
   
-  console.log('✅ Reading page initialized');
+  console.log('✅ Reading page HTML initialized');
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initReadingPage); 
+// Initialize when DOM is loaded - only populate HTML on reading page
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.pathname.includes('reading.html')) {
+    // Wait for main.js preload to complete, then initialize
+    waitForMainPreload();
+  }
+});
+
+// Function to wait for main.js preload to complete before initializing
+function waitForMainPreload() {
+  // Check if main.js has completed its preload
+  if (window.booksPreloadComplete) {
+    console.log('📖 Main.js preload complete, initializing reading page...');
+    initReadingPageHTML();
+  } else {
+    // Wait a bit more for main.js to complete preload
+    setTimeout(waitForMainPreload, 50);
+  }
+} 

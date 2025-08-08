@@ -102,6 +102,14 @@ document.addEventListener("DOMContentLoaded", function() {
         // Initialize dark mode after footer is loaded
         darkToggleBtn = document.getElementById('dark-toggle');
         initializeDarkMode();
+        
+        // Preload books data after components are loaded
+        if (window.preloadBooksData) {
+          window.preloadBooksData().then(() => {
+            // Signal that preload is complete
+            window.booksPreloadComplete = true;
+          });
+        }
       })
       .catch(error => {
         console.error('Error loading footer:', error);
