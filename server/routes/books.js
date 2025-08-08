@@ -1,6 +1,7 @@
 import express from 'express';
 import { supabase } from '../services/database.js';
 import { requireAdmin, logAdminAction } from '../middleware/auth.js';
+import { sanitizeInput, validateBookInput, validateBookUpdate } from '../middleware/validation.js';
 
 const router = express.Router();
 
@@ -25,30 +26,15 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/books - Create a new book (admin only)
-router.post('/', requireAdmin, logAdminAction, async (req, res) => {
+router.post('/', sanitizeInput, validateBookInput, requireAdmin, logAdminAction, async (req, res) => {
   try {
-    const { title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
+    const bookData = req.validatedData;
     
-    if (!title) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-
-    // Validate input
-    if (title.length > 500 || (author && author.length > 200) || (notes && notes.length > 2000)) {
-      return res.status(400).json({ error: 'Input too long' });
-    }
-
     const { data, error } = await supabase
       .from('books')
       .insert([{
-        title,
-        author,
-        genre,
-        cover_url,
-        rating,
-        notes,
-        status: status || 'want_to_read',
-        completion_date
+        ...bookData,
+        status: bookData.status || 'want_to_read'
       }])
       .select()
       .single();
@@ -62,35 +48,21 @@ router.post('/', requireAdmin, logAdminAction, async (req, res) => {
 });
 
 // PUT /api/books - Update a book (admin only)
-router.put('/', requireAdmin, logAdminAction, async (req, res) => {
+router.put('/', sanitizeInput, validateBookUpdate, requireAdmin, logAdminAction, async (req, res) => {
   try {
-    const { id, title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
+    const { id, ...bookData } = req.validatedData;
     
-    if (!id) {
-      return res.status(400).json({ error: 'Book ID is required' });
-    }
-    
-    if (!title) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-
-    // Validate input
-    if (title.length > 500 || (author && author.length > 200) || (notes && notes.length > 2000)) {
-      return res.status(400).json({ error: 'Input too long' });
-    }
+    // Remove null values to avoid overwriting with null
+    const updateData = {};
+    Object.keys(bookData).forEach(key => {
+      if (bookData[key] !== null && bookData[key] !== undefined) {
+        updateData[key] = bookData[key];
+      }
+    });
 
     const { data, error } = await supabase
       .from('books')
-      .update({
-        title,
-        author,
-        genre,
-        cover_url,
-        rating,
-        notes,
-        status: status || 'want_to_read',
-        completion_date
-      })
+      .update(updateData)
       .eq('id', id)
       .select();
 
@@ -122,6 +94,7 @@ router.delete('/', requireAdmin, logAdminAction, async (req, res) => {
       .eq('id', id);
 
     if (error) throw error;
+    
     res.status(204).send();
   } catch (error) {
     console.error('Books API Error:', error);

@@ -1,6 +1,7 @@
 import express from 'express';
 import { supabase } from '../services/database.js';
 import { requireAdmin, logAdminAction } from '../middleware/auth.js';
+import { sanitizeInput, validateProjectInput } from '../middleware/validation.js';
 
 const router = express.Router();
 
@@ -25,28 +26,15 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/projects - Create a new project (admin only)
-router.post('/', requireAdmin, logAdminAction, async (req, res) => {
+router.post('/', sanitizeInput, validateProjectInput, requireAdmin, logAdminAction, async (req, res) => {
   try {
-    const { title, description, github_url, live_url, technologies, featured = false } = req.body;
+    const projectData = req.validatedData;
     
-    if (!title) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-
-    // Validate input
-    if (title.length > 200 || (description && description.length > 2000)) {
-      return res.status(400).json({ error: 'Input too long' });
-    }
-
     const { data, error } = await supabase
       .from('projects')
       .insert([{
-        title,
-        description,
-        github_url,
-        live_url,
-        technologies: technologies || [],
-        featured
+        ...projectData,
+        technologies: projectData.technologies || []
       }])
       .select()
       .single();

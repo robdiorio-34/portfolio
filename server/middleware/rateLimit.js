@@ -29,18 +29,4 @@ export const adminLoginLimiter = rateLimit({
   onLimitReached: (req, res, options) => {
     console.log('Rate limit reached for admin login from IP:', req.ip);
   }
-});
-
-// General API rate limiter - 100 requests per 5 minutes
-export const apiLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 100, // 100 requests per window
-  message: { 
-    error: 'Too many requests. Please try again later.' 
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => {
-    return req.ip || req.connection.remoteAddress || 'unknown';
-  }
 }); 

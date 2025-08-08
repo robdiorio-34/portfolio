@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabase } from '../services/database.js';
+import { sanitizeInput, validateCommentInput } from '../middleware/validation.js';
 
 const router = express.Router();
 
@@ -30,25 +31,16 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/comments - Create a new comment
-router.post('/', async (req, res) => {
+router.post('/', sanitizeInput, validateCommentInput, async (req, res) => {
   try {
-    const { text, sentiment_score, user_id = 'anonymous' } = req.body;
+    const commentData = req.validatedData;
     
-    if (!text || text.trim().length === 0) {
-      return res.status(400).json({ error: 'Comment text is required' });
-    }
-
-    // Validate input
-    if (text.length > 1000) {
-      return res.status(400).json({ error: 'Comment too long' });
-    }
-
     const { data, error } = await supabase
       .from('comments')
       .insert([{
-        text: text.trim(),
-        sentiment_score: sentiment_score || null,
-        user_id,
+        text: commentData.message.trim(),
+        sentiment_score: null, // Will be calculated by trigger
+        user_id: commentData.name,
         active: true // Set new comments as active by default
       }])
       .select()
