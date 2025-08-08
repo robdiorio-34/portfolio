@@ -1,9 +1,10 @@
 import express from 'express';
+import { adminLoginLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
-// POST /api/admin/login - Admin login
-router.post('/login', async (req, res) => {
+// POST /api/admin/login - Admin login (with rate limiting)
+router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
     const { password } = req.body;
     
