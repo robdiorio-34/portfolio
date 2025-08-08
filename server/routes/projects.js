@@ -1,9 +1,10 @@
 import express from 'express';
 import { supabase } from '../services/database.js';
+import { requireAdmin, logAdminAction } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/projects - Get all projects
+// GET /api/projects - Get all projects (public access)
 router.get('/', async (req, res) => {
   try {
     const { featured } = req.query;
@@ -23,8 +24,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/projects - Create a new project
-router.post('/', async (req, res) => {
+// POST /api/projects - Create a new project (admin only)
+router.post('/', requireAdmin, logAdminAction, async (req, res) => {
   try {
     const { title, description, github_url, live_url, technologies, featured = false } = req.body;
     

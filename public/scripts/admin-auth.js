@@ -5,23 +5,54 @@ class AdminSession {
   constructor() {
     this.isLoggedIn = false;
     this.sessionKey = 'admin_session';
+    this.tokenKey = 'admin_token';
     this.checkSession();
   }
 
   // Check if admin is logged in
   checkSession() {
     const session = localStorage.getItem(this.sessionKey);
-    if (session) {
+    const token = localStorage.getItem(this.tokenKey);
+    
+    if (session && token) {
       const sessionData = JSON.parse(session);
       const now = Date.now();
       
       // Check if session is still valid (24 hours)
       if (sessionData.expires > now) {
-        this.isLoggedIn = true;
-        this.updateUI();
+        // Additional JWT expiration check
+        if (this.isTokenValid(token)) {
+          this.isLoggedIn = true;
+          this.updateUI();
+        } else {
+          this.logout();
+        }
       } else {
         this.logout();
       }
+    }
+  }
+
+  // Check if JWT token is valid (basic check)
+  isTokenValid(token) {
+    try {
+      // Basic JWT structure check (header.payload.signature)
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
+      
+      // Decode payload to check expiration
+      const payload = JSON.parse(atob(parts[1]));
+      const now = Math.floor(Date.now() / 1000);
+      
+      // Check if token has expired
+      if (payload.exp && payload.exp < now) {
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Token validation error:', error);
+      return false;
     }
   }
 
@@ -40,7 +71,7 @@ class AdminSession {
 
       if (response.ok && data.success) {
         this.isLoggedIn = true;
-        this.saveSession();
+        this.saveSession(data.adminToken);
         this.updateUI();
         return { success: true };
       } else {
@@ -56,16 +87,30 @@ class AdminSession {
   logout() {
     this.isLoggedIn = false;
     localStorage.removeItem(this.sessionKey);
+    localStorage.removeItem(this.tokenKey);
     this.updateUI();
   }
 
   // Save session to localStorage
-  saveSession() {
+  saveSession(adminToken) {
     const sessionData = {
       loggedIn: true,
       expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
     };
     localStorage.setItem(this.sessionKey, JSON.stringify(sessionData));
+    localStorage.setItem(this.tokenKey, adminToken);
+  }
+
+  // Get admin token for authenticated requests
+  getAdminToken() {
+    const token = localStorage.getItem(this.tokenKey);
+    if (token && this.isTokenValid(token)) {
+      return token;
+    } else {
+      // Token is invalid, logout
+      this.logout();
+      return null;
+    }
   }
 
   // Update UI based on admin status

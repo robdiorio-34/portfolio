@@ -6,6 +6,11 @@ class PortfolioAPI {
     this.baseURL = window.location.origin;
   }
 
+  // Get admin token from localStorage
+  getAdminToken() {
+    return localStorage.getItem('admin_token');
+  }
+
   // Generic API call method
   async apiCall(endpoint, options = {}) {
     const url = `${this.baseURL}/api/${endpoint}`;
@@ -14,6 +19,12 @@ class PortfolioAPI {
         'Content-Type': 'application/json',
       },
     };
+
+    // Add admin token if available for admin operations
+    const adminToken = this.getAdminToken();
+    if (adminToken) {
+      defaultOptions.headers['x-admin-token'] = adminToken;
+    }
 
     try {
       const response = await fetch(url, { ...defaultOptions, ...options });

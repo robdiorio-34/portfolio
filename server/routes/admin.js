@@ -1,4 +1,5 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import { adminLoginLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
@@ -21,9 +22,23 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
     }
 
     if (password === adminPassword) {
+      // Generate JWT token for admin
+      const secret = process.env.JWT_SECRET || 'fallback-secret-key';
+      const token = jwt.sign(
+        { 
+          role: 'admin', 
+          userId: 'rob-diorio',
+          loginTime: new Date().toISOString()
+        },
+        secret,
+        { expiresIn: '24h' } // Token expires in 24 hours
+      );
+      
       res.json({ 
         success: true, 
         message: 'Login successful',
+        adminToken: token, // JWT token
+        expiresIn: '24h',
         timestamp: new Date().toISOString()
       });
     } else {

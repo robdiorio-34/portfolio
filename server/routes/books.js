@@ -1,9 +1,10 @@
 import express from 'express';
 import { supabase } from '../services/database.js';
+import { requireAdmin, logAdminAction } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/books - Get all books
+// GET /api/books - Get all books (public access)
 router.get('/', async (req, res) => {
   try {
     const { status } = req.query;
@@ -23,8 +24,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/books - Create a new book
-router.post('/', async (req, res) => {
+// POST /api/books - Create a new book (admin only)
+router.post('/', requireAdmin, logAdminAction, async (req, res) => {
   try {
     const { title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
     
@@ -60,8 +61,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT /api/books - Update a book
-router.put('/', async (req, res) => {
+// PUT /api/books - Update a book (admin only)
+router.put('/', requireAdmin, logAdminAction, async (req, res) => {
   try {
     const { id, title, author, genre, cover_url, rating, notes, status, completion_date } = req.body;
     
@@ -106,8 +107,8 @@ router.put('/', async (req, res) => {
   }
 });
 
-// DELETE /api/books - Delete a book
-router.delete('/', async (req, res) => {
+// DELETE /api/books - Delete a book (admin only)
+router.delete('/', requireAdmin, logAdminAction, async (req, res) => {
   try {
     const { id } = req.query;
     
