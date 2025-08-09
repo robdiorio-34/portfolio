@@ -14,29 +14,30 @@ const bookSchema = Joi.object({
       'string.min': 'Author must be at least 1 character long',
       'string.max': 'Author cannot exceed 100 characters'
     }),
-  genre: Joi.string().trim().max(50).optional()
+  genre: Joi.string().trim().max(50).optional().allow('', null)
     .messages({
       'string.max': 'Genre cannot exceed 50 characters'
     }),
-  cover_url: Joi.string().uri().max(500).optional()
+  cover_url: Joi.string().uri().max(500).optional().allow('', null)
     .messages({
       'string.uri': 'Cover URL must be a valid URL',
       'string.max': 'Cover URL cannot exceed 500 characters'
     }),
-  rating: Joi.number().min(1).max(5).integer().optional()
+  rating: Joi.number().min(1).max(5).integer().optional().allow(null, '')
     .messages({
       'number.min': 'Rating must be between 1 and 5',
       'number.max': 'Rating must be between 1 and 5',
       'number.base': 'Rating must be a number'
     }),
-  notes: Joi.string().trim().max(2000).optional()
+  notes: Joi.string().trim().max(2000).optional().allow('', null)
     .messages({
       'string.max': 'Notes cannot exceed 2000 characters'
     }),
-  status: Joi.string().valid('currently_reading', 'want_to_read', 'have_read').required()
+  status: Joi.string().valid('currently_reading', 'want_to_read', 'have_read').optional()
     .messages({
       'any.only': 'Status must be exactly one of: "currently_reading", "want_to_read", or "have_read" (use underscores, not spaces)'
-    })
+    }),
+  completion_date: Joi.date().optional().allow(null, '')
 });
 
 // Schema for book updates (more flexible for partial updates)
@@ -113,26 +114,21 @@ const projectSchema = Joi.object({
       'string.min': 'Description must be at least 1 character long',
       'string.max': 'Description cannot exceed 1000 characters'
     }),
-  technologies: Joi.array().items(Joi.string().trim().max(50)).max(20).optional()
+  technologies: Joi.array().items(Joi.string().trim().max(50)).max(20).optional().allow(null)
     .messages({
       'array.max': 'Cannot have more than 20 technologies'
     }),
-  github_url: Joi.string().uri().max(500).optional()
+  github_url: Joi.string().uri().max(500).optional().allow('', null)
     .messages({
       'string.uri': 'GitHub URL must be a valid URL',
       'string.max': 'GitHub URL cannot exceed 500 characters'
     }),
-  live_url: Joi.string().uri().max(500).optional()
+  live_url: Joi.string().uri().max(500).optional().allow('', null)
     .messages({
       'string.uri': 'Live URL must be a valid URL',
       'string.max': 'Live URL cannot exceed 500 characters'
     }),
-  featured: Joi.boolean().default(false),
-  image_url: Joi.string().uri().max(500).optional()
-    .messages({
-      'string.uri': 'Image URL must be a valid URL',
-      'string.max': 'Image URL cannot exceed 500 characters'
-    })
+  featured: Joi.boolean().default(false)
 });
 
 // Sanitization function - Remove HTML tags and scripts
@@ -156,6 +152,7 @@ export const sanitizeInput = (req, res, next) => {
 // Enhanced validation middleware with better error messages
 export const validateBookInput = (req, res, next) => {
   const { error, value } = bookSchema.validate(req.body);
+  
   if (error) {
     // Create more helpful error messages
     const errorMessages = error.details.map(detail => {
@@ -206,7 +203,21 @@ export const validateBookInput = (req, res, next) => {
       }
     });
   }
-  req.validatedData = value;
+  
+  // Clean up empty strings and convert to null for optional fields
+  const cleanedData = { ...value };
+  ['genre', 'cover_url', 'notes', 'completion_date'].forEach(field => {
+    if (cleanedData[field] === '' || cleanedData[field] === undefined) {
+      cleanedData[field] = null;
+    }
+  });
+  
+  // Handle rating field specially
+  if (cleanedData.rating === '' || cleanedData.rating === undefined) {
+    cleanedData.rating = null;
+  }
+  
+  req.validatedData = cleanedData;
   next();
 };
 
@@ -267,10 +278,15 @@ export const validateBookUpdate = (req, res, next) => {
   // Clean up empty strings and convert to null for optional fields
   const cleanedData = { ...value };
   ['genre', 'cover_url', 'notes', 'completion_date'].forEach(field => {
-    if (cleanedData[field] === '') {
+    if (cleanedData[field] === '' || cleanedData[field] === undefined) {
       cleanedData[field] = null;
     }
   });
+  
+  // Handle rating field specially
+  if (cleanedData.rating === '' || cleanedData.rating === undefined) {
+    cleanedData.rating = null;
+  }
   
   req.validatedData = cleanedData;
   next();
@@ -317,7 +333,21 @@ export const validateProjectInput = (req, res, next) => {
       }
     });
   }
-  req.validatedData = value;
+  
+  // Clean up empty strings and convert to null for optional fields
+  const cleanedData = { ...value };
+  ['github_url', 'live_url'].forEach(field => {
+    if (cleanedData[field] === '' || cleanedData[field] === undefined) {
+      cleanedData[field] = null;
+    }
+  });
+  
+  // Handle technologies array specially
+  if (cleanedData.technologies === null || cleanedData.technologies === undefined) {
+    cleanedData.technologies = [];
+  }
+  
+  req.validatedData = cleanedData;
   next();
 };
 

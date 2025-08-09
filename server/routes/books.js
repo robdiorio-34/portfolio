@@ -34,7 +34,7 @@ router.post('/', sanitizeInput, validateBookInput, requireAdmin, logAdminAction,
       .from('books')
       .insert([{
         ...bookData,
-        status: bookData.status || 'want_to_read'
+        status: bookData.status || 'want_to_read' // Default to want_to_read if not provided
       }])
       .select()
       .single();
