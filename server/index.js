@@ -10,6 +10,7 @@ import { apiMonitor } from './middleware/monitoring.js';
 import booksRouter from './routes/books.js';
 import commentsRouter from './routes/comments.js';
 import projectsRouter from './routes/projects.js';
+import notesRouter from './routes/notes.js';
 import adminRouter from './routes/admin.js';
 import healthRouter from './routes/health.js';
 
@@ -35,6 +36,7 @@ app.use('/api', validateRequest);
 app.use('/api/books', booksRouter);
 app.use('/api/comments', commentsRouter);
 app.use('/api/projects', projectsRouter);
+app.use('/api/notes', notesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/health', healthRouter);
 

@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Set correct navbar links after navbar is loaded
         document.getElementById('home-link').href = '/';
         document.getElementById('projects-link').href = '/projects.html';
+        document.getElementById('notes-link').href = '/notes.html';
         document.getElementById('reading-link').href = '/reading.html';
         document.getElementById('resume-link').href = '/resume.html';
         document.getElementById('comments-link').href = '/comments.html';

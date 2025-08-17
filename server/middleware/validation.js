@@ -131,6 +131,44 @@ const projectSchema = Joi.object({
   featured: Joi.boolean().default(false)
 });
 
+const noteSchema = Joi.object({
+  title: Joi.string().trim().min(1).max(200).required()
+    .messages({
+      'string.empty': 'Title cannot be empty',
+      'string.min': 'Title must be at least 1 character long',
+      'string.max': 'Title cannot exceed 200 characters'
+    }),
+  substack_url: Joi.string().uri().max(500).required()
+    .messages({
+      'string.uri': 'Substack URL must be a valid URL',
+      'string.max': 'Substack URL cannot exceed 500 characters',
+      'any.required': 'Substack URL is required'
+    }),
+  published_date: Joi.date().optional().allow(null, '')
+    .messages({
+      'date.base': 'Published date must be a valid date'
+    })
+});
+
+// Schema for note updates (more flexible for partial updates)
+const noteUpdateSchema = Joi.object({
+  title: Joi.string().trim().min(1).max(200).optional()
+    .messages({
+      'string.empty': 'Title cannot be empty',
+      'string.min': 'Title must be at least 1 character long',
+      'string.max': 'Title cannot exceed 200 characters'
+    }),
+  substack_url: Joi.string().uri().max(500).optional()
+    .messages({
+      'string.uri': 'Substack URL must be a valid URL',
+      'string.max': 'Substack URL cannot exceed 500 characters'
+    }),
+  published_date: Joi.date().optional().allow(null, '')
+    .messages({
+      'date.base': 'Published date must be a valid date'
+    })
+});
+
 // Sanitization function - Remove HTML tags and scripts
 export const sanitizeInput = (req, res, next) => {
   if (req.body) {
@@ -346,6 +384,69 @@ export const validateProjectInput = (req, res, next) => {
   if (cleanedData.technologies === null || cleanedData.technologies === undefined) {
     cleanedData.technologies = [];
   }
+  
+  req.validatedData = cleanedData;
+  next();
+};
+
+export const validateNoteInput = (req, res, next) => {
+  const { error, value } = noteSchema.validate(req.body);
+  if (error) {
+    const errorMessages = error.details.map(detail => {
+      const field = detail.path.join('.');
+      const message = detail.message;
+      return `${field}: ${message}`;
+    });
+    
+    return res.status(400).json({ 
+      error: 'Note validation failed', 
+      details: errorMessages,
+      help: {
+        required_fields: 'Title and Substack URL are required',
+        substack_url: 'Must be a valid Substack URL (e.g., https://robdiorio.substack.com/p/...)',
+        published_date: 'Published date is optional (defaults to current date)'
+      }
+    });
+  }
+  
+  // Clean up empty strings and convert to null for optional fields
+  const cleanedData = { ...value };
+  ['published_date'].forEach(field => {
+    if (cleanedData[field] === '' || cleanedData[field] === undefined) {
+      cleanedData[field] = null;
+    }
+  });
+  
+  req.validatedData = cleanedData;
+  next();
+};
+
+export const validateNoteUpdate = (req, res, next) => {
+  const { error, value } = noteUpdateSchema.validate(req.body);
+  if (error) {
+    const errorMessages = error.details.map(detail => {
+      const field = detail.path.join('.');
+      const message = detail.message;
+      return `${field}: ${message}`;
+    });
+    
+    return res.status(400).json({ 
+      error: 'Note update validation failed', 
+      details: errorMessages,
+      help: {
+        optional_fields: 'All fields are optional for updates',
+        substack_url: 'Must be a valid Substack URL if provided'
+      }
+    });
+  }
+  
+  // Clean up empty strings and convert to null for optional fields
+  const cleanedData = { ...value };
+  ['published_date'].forEach(field => {
+    if (cleanedData[field] === '' || cleanedData[field] === undefined) {
+      cleanedData[field] = null;
+    }
+  });
   
   req.validatedData = cleanedData;
   next();

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rob Diorio | Notes</title>
+  <script src="/scripts/dark-mode-init.js"></script>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/notes.css">
+  <link rel="stylesheet" href="/styles/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+  <main class="notes-page">
+    <div class="content-container">
+      <h1>Notes</h1>
+      <div class="notes-cards" id="notes-cards">
+        <!-- Notes will be loaded here dynamically -->
+      </div>
+      
+      <!-- Admin Controls (hidden by default) -->
+      <div class="admin-controls" id="admin-controls" style="display: none;">
+        <button class="admin-btn" id="add-note-btn">Add Note</button>
+      </div>
+    </div>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script src="/scripts/main.js"></script>
+  <script src="/scripts/supabase-client.js"></script>
+  <script src="/scripts/admin-auth.js"></script>
+  <script src="/scripts/notes.js"></script>
+</body>
+</html> 

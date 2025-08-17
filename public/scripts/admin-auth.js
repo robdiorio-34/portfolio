@@ -198,6 +198,12 @@ class AdminSession {
         // Wait for reading page content to load and retry if needed
         this.waitForReadingContent();
       }
+      
+      // Add admin controls to notes page
+      if (window.location.pathname.includes('notes.html')) {
+        // Wait for notes page content to load and retry if needed
+        this.waitForNotesContent();
+      }
     } else {
       // Remove admin controls
       this.removeAdminControls();
@@ -222,6 +228,18 @@ class AdminSession {
     } else {
       console.log('Reading sections not yet loaded or books not populated, retrying in 500ms...');
       setTimeout(() => this.waitForReadingContent(), 500);
+    }
+  }
+
+  // Wait for notes page content to load
+  waitForNotesContent() {
+    const notesCards = document.getElementById('notes-cards');
+    if (notesCards && notesCards.children.length > 0) {
+      console.log('Notes cards found and populated, adding admin controls...');
+      this.addNotesAdminControls();
+    } else {
+      console.log('Notes cards not yet loaded or populated, retrying in 500ms...');
+      setTimeout(() => this.waitForNotesContent(), 500);
     }
   }
 
@@ -321,10 +339,68 @@ class AdminSession {
     });
   }
 
+  // Add admin controls to notes page
+  addNotesAdminControls() {
+    console.log('Adding admin controls to notes page...');
+    
+    // Add edit/delete buttons to each note card
+    const noteCards = document.querySelectorAll('.note-card');
+    noteCards.forEach(card => {
+      // Check if admin buttons already exist
+      if (!card.querySelector('.note-admin-actions')) {
+        const noteId = card.getAttribute('data-note-id');
+        if (noteId) {
+          // Create admin actions container
+          const adminActions = document.createElement('div');
+          adminActions.className = 'note-admin-actions';
+          adminActions.innerHTML = `
+            <button class="note-admin-btn edit-btn" data-note-id="${noteId}">Edit</button>
+            <button class="note-admin-btn delete-btn" data-note-id="${noteId}">Delete</button>
+          `;
+          
+          // Add event listeners
+          const editBtn = adminActions.querySelector('.edit-btn');
+          const deleteBtn = adminActions.querySelector('.delete-btn');
+          
+          editBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent note card click
+            this.editNote(noteId);
+          });
+          
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent note card click
+            this.deleteNote(noteId);
+          });
+          
+          // Add to note card
+          card.appendChild(adminActions);
+          console.log(`Added admin controls to note card: ${noteId}`);
+        }
+      }
+    });
+    
+    // Show the existing "Add Note" button
+    const adminControls = document.getElementById('admin-controls');
+    if (adminControls) {
+      adminControls.style.display = 'block';
+    }
+  }
+
   // Remove admin controls
   removeAdminControls() {
+    // Remove reading page admin buttons
     const adminButtons = document.querySelectorAll('.admin-add-button');
     adminButtons.forEach(button => button.remove());
+    
+    // Remove notes page admin buttons
+    const noteAdminActions = document.querySelectorAll('.note-admin-actions');
+    noteAdminActions.forEach(action => action.remove());
+    
+    // Hide notes page admin controls
+    const adminControls = document.getElementById('admin-controls');
+    if (adminControls) {
+      adminControls.style.display = 'none';
+    }
   }
 
   // Show add book modal
@@ -567,6 +643,216 @@ class AdminSession {
       } catch (error) {
         console.error('Error deleting book:', error);
         alert('Error deleting book: ' + error.message);
+      }
+    }
+  }
+
+  // Show add note modal
+  showAddNoteModal() {
+    const modal = document.createElement('div');
+    modal.className = 'admin-modal';
+    modal.innerHTML = `
+      <div class="admin-modal-content">
+        <span class="admin-close-modal">&times;</span>
+        <h3>Add New Note</h3>
+        <form id="add-note-form">
+          <div class="form-group">
+            <label for="note-title">Title *</label>
+            <input type="text" id="note-title" required>
+          </div>
+          <div class="form-group">
+            <label for="note-substack-url">Substack URL *</label>
+            <input type="url" id="note-substack-url" placeholder="https://robdiorio.substack.com/p/..." required>
+          </div>
+          <div class="form-group">
+            <label for="note-published-date">Published Date</label>
+            <input type="date" id="note-published-date">
+          </div>
+          <button type="submit">Add Note</button>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.admin-close-modal');
+    closeBtn.onclick = () => modal.remove();
+
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.remove();
+    };
+
+    // Handle form submission
+    const form = modal.querySelector('#add-note-form');
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        title: document.getElementById('note-title').value,
+        substack_url: document.getElementById('note-substack-url').value,
+        published_date: document.getElementById('note-published-date').value || null
+      };
+
+      const result = await this.addNote(formData);
+      if (result.success) {
+        modal.remove();
+        // Refresh the page to show new note
+        window.location.reload();
+      } else {
+        alert('Error adding note: ' + result.error);
+      }
+    };
+  }
+
+  // Add note to database
+  async addNote(noteData) {
+    try {
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': this.getAdminToken()
+        },
+        body: JSON.stringify(noteData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add note');
+      }
+
+      const newNote = await response.json();
+      return { success: true, data: newNote };
+    } catch (error) {
+      console.error('Error adding note:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Edit note
+  async editNote(noteId) {
+    try {
+      // Fetch current note data
+      const response = await fetch(`/api/notes/${noteId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch note');
+      }
+      
+      const note = await response.json();
+      this.showEditNoteModal(note);
+    } catch (error) {
+      console.error('Error fetching note:', error);
+      alert('Error loading note data');
+    }
+  }
+
+  // Show edit note modal
+  showEditNoteModal(note) {
+    const modal = document.createElement('div');
+    modal.className = 'admin-modal';
+    modal.innerHTML = `
+      <div class="admin-modal-content">
+        <span class="admin-close-modal">&times;</span>
+        <h3>Edit Note</h3>
+        <form id="edit-note-form">
+          <div class="form-group">
+            <label for="edit-note-title">Title *</label>
+            <input type="text" id="edit-note-title" value="${note.title}" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-note-substack-url">Substack URL *</label>
+            <input type="url" id="edit-note-substack-url" value="${note.substack_url}" placeholder="https://robdiorio.substack.com/p/..." required>
+          </div>
+          <div class="form-group">
+            <label for="edit-note-published-date">Published Date</label>
+            <input type="date" id="edit-note-published-date" value="${note.published_date || ''}">
+          </div>
+          <button type="submit">Update Note</button>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.admin-close-modal');
+    closeBtn.onclick = () => modal.remove();
+
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.remove();
+    };
+
+    // Handle form submission
+    const form = modal.querySelector('#edit-note-form');
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        title: document.getElementById('edit-note-title').value,
+        substack_url: document.getElementById('edit-note-substack-url').value,
+        published_date: document.getElementById('edit-note-published-date').value || null
+      };
+
+      const result = await this.updateNote(note.id, formData);
+      if (result.success) {
+        modal.remove();
+        // Refresh the page to show updated note
+        window.location.reload();
+      } else {
+        alert('Error updating note: ' + result.error);
+      }
+    };
+  }
+
+  // Update note in database
+  async updateNote(noteId, noteData) {
+    try {
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': this.getAdminToken()
+        },
+        body: JSON.stringify(noteData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update note');
+      }
+
+      const updatedNote = await response.json();
+      return { success: true, data: updatedNote };
+    } catch (error) {
+      console.error('Error updating note:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Delete note with confirmation
+  async deleteNote(noteId) {
+    const confirmed = confirm('Are you sure you want to delete this note? This action cannot be undone.');
+    
+    if (confirmed) {
+      try {
+        const response = await fetch(`/api/notes/${noteId}`, {
+          method: 'DELETE',
+          headers: {
+            'x-admin-token': this.getAdminToken()
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete note');
+        }
+
+        // Refresh the page to show updated list
+        window.location.reload();
+      } catch (error) {
+        console.error('Error deleting note:', error);
+        alert('Error deleting note: ' + error.message);
       }
     }
   }

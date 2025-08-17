@@ -1,0 +1,358 @@
+/* Notes Styles - Note cards, grid layout, and note-specific styles */
+
+.notes h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.notes-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+@media (min-width: 600px) {
+  .notes-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .notes-cards {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Note card link wrapper */
+.note-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.note-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.2rem 1rem;
+  transition: box-shadow 0.3s, transform 0.3s, background 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+  display: flex;
+  flex-direction: column;
+  height: 200px; /* Fixed height */
+  justify-content: space-between; /* Distribute space between elements */
+  position: relative; /* For admin buttons positioning */
+}
+
+body.dark .note-card {
+  background: #23272a;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.note-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Note title - centered at top */
+.note-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  flex-shrink: 0; /* Don't shrink */
+  text-align: center;
+}
+
+/* Note date - centered */
+.note-date {
+  margin: 0.25rem 0;
+  color: #555;
+  font-size: 1.1rem;
+  transition: color 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  align-items: center; /* Center the text vertically */
+  justify-content: center; /* Center the text horizontally */
+  text-align: center;
+}
+
+body.dark .note-date {
+  color: #ccc;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+/* Note link - anchored to bottom */
+.note-link {
+  display: inline-flex;
+  align-items: center;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  gap: 0.4em;
+  flex-shrink: 0; /* Don't shrink */
+  position: relative; /* For absolute positioning of icons */
+  padding-left: 28px; /* Space for the icon */
+}
+
+.note-link:hover {
+  color: #1e40af;
+}
+
+/* Note card icon positioning and theme switching */
+.note-link .icon {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+  fill: currentColor;
+  transition: filter 0.3s;
+  /* Position both icons in exactly the same spot */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
+}
+
+.note-link .icon-light {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+.note-link .icon-dark {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .note-link .icon-light {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+body.dark .note-link .icon-dark {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s, visibility 0.3s;
+  transition-delay: 0.05s; /* Synchronized transition */
+}
+
+/* Admin Controls */
+.admin-controls {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.admin-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-btn:hover {
+  background: #1e40af;
+}
+
+/* Admin action buttons on note cards */
+.note-admin-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.note-card:hover .note-admin-actions {
+  opacity: 1;
+}
+
+.note-admin-btn {
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+body.dark .note-admin-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.note-admin-btn:hover {
+  background: rgba(0, 0, 0, 0.2);
+  color: #333;
+}
+
+body.dark .note-admin-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.note-admin-btn.edit-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.note-admin-btn.delete-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+body.dark .modal-content {
+  background-color: #23272a;
+  color: #fff;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+.close:hover {
+  color: #000;
+}
+
+body.dark .close:hover {
+  color: #fff;
+}
+
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+body.dark .form-group input {
+  background-color: #2c2f33;
+  border-color: #40444b;
+  color: #fff;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+} 
