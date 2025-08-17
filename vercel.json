@@ -36,6 +36,10 @@
       "dest": "/public/pages/reading.html"
     },
     {
+      "src": "/notes.html",
+      "dest": "/public/pages/notes.html"
+    },
+    {
       "src": "/comments.html",
       "dest": "/public/pages/comments.html"
     },
