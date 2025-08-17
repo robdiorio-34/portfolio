@@ -41,8 +41,8 @@ class NotesManager {
     const formattedDate = this.formatDate(note.published_date);
     
     return `
-      <article class="note-card" data-note-id="${note.id}">
-        <a href="${note.substack_url}" target="_blank" rel="noopener" class="note-card-link">
+      <a href="${note.substack_url}" target="_blank" rel="noopener" class="note-card-link">
+        <article class="note-card" data-note-id="${note.id}">
           <h4 class="note-title">${this.escapeHtml(note.title)}</h4>
           <p class="note-date">${formattedDate}</p>
           <div class="note-link">
@@ -54,8 +54,8 @@ class NotesManager {
             </svg>
             Read on Substack
           </div>
-        </a>
-      </article>
+        </article>
+      </a>
     `;
   }
 

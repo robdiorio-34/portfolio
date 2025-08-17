@@ -33,6 +33,7 @@ body.dark {
 
 /* Page layout containers */
 .projects-page,
+.notes-page,
 .resume-page,
 .comments-page {
   padding: 2rem 1rem 6rem 1rem; /* Add bottom padding for fixed footer */
