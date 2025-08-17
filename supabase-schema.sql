@@ -39,39 +39,37 @@ CREATE TABLE projects (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Notes table for essays and thoughts
+CREATE TABLE notes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  substack_url TEXT NOT NULL,
+  published_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE books ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
 CREATE POLICY "Allow public read access to books" ON books FOR SELECT USING (true);
 CREATE POLICY "Allow public read access to comments" ON comments FOR SELECT USING (true);
 CREATE POLICY "Allow public read access to projects" ON projects FOR SELECT USING (true);
+CREATE POLICY "Allow public read access to notes" ON notes FOR SELECT USING (true);
 
 -- Create policies for insert access (for now, allow all inserts)
 CREATE POLICY "Allow public insert to books" ON books FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public insert to comments" ON comments FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public insert to projects" ON projects FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public insert to notes" ON notes FOR INSERT WITH CHECK (true);
 
 -- Create indexes for better performance
 CREATE INDEX idx_books_status ON books(status);
 CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
 CREATE INDEX idx_projects_featured ON projects(featured);
+CREATE INDEX idx_notes_published_date ON notes(published_date DESC);
 
--- Insert some sample data
-INSERT INTO books (title, author, genre, cover_url, status, notes) VALUES
-('Nightfall', 'Isaac Asimov and Robert Silverberg', 'Science Fiction', 'https://images-na.ssl-images-amazon.com/images/P/0553290991.01.L.jpg', 'currently_reading', 'Currently reading this science fiction novel.'),
-('The Brothers Karamazov', 'Fyodor Dostoevsky', 'Fiction', 'https://images-na.ssl-images-amazon.com/images/P/0374528373.01.L.jpg', 'currently_reading', 'Currently reading this classic Russian novel.'),
-('1Q84', 'Haruki Murakami', 'Fiction', 'https://images-na.ssl-images-amazon.com/images/P/0099578077.01.L.jpg', 'want_to_read', 'Want to read this acclaimed novel by Haruki Murakami.');
-
-INSERT INTO comments (text, sentiment_score) VALUES
-('This portfolio is amazing!', 0.8),
-('Love the falling comments feature', 0.9),
-('Great projects showcase', 0.7),
-('The dark mode is so smooth', 0.8);
-
-INSERT INTO projects (title, description, github_url, technologies, featured) VALUES
-('Portfolio Website', 'This website. Built with Cursor.', 'https://github.com/robdiorio-34/portfolio', ARRAY['HTML', 'CSS', 'JavaScript'], true),
-('Dots', 'Combine Strava API + Hevy API to create an aggregated workout calendar view.', 'https://github.com/robdiorio-34/dots', ARRAY['JavaScript', 'API Integration'], true),
-('Spotify - Roast Me', 'Messing around with Spotify API and ChatGPT API to generate a personalized roast of your music taste.', 'https://github.com/robdiorio-34/Spotify-roast', ARRAY['JavaScript', 'API Integration'], true); 
